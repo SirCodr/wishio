@@ -9,6 +9,10 @@ export async function getByWishlist(id: string): Promise<Wish[]> {
   return await new HttpRequest().get(`wishes/wishlist/${id}`).then(res => res.data)
 }
 
+export async function getSharedByWishlist(id: string): Promise<Wish[]> {
+  return await new HttpRequest().get(`wishes/shared/${id}`).then(res => res.data)
+}
+
 export async function create(wishes: WishCreateDto[]) {
   return await new HttpRequest().post('wishes', wishes)
 }

@@ -2,7 +2,7 @@ import { AddWishModal } from '@/components/AddWishModal'
 import EmptyDataCard from '@/components/ui/empty-data-card'
 import Loader from '@/components/ui/loader'
 import WishItem from '@/components/WishItem'
-import { getByWishlist } from '@/services/wishes'
+import { getSharedByWishlist } from '@/services/wishes'
 import { useQuery } from '@tanstack/react-query'
 import { useParams } from 'react-router-dom'
 
@@ -10,7 +10,7 @@ const SharedWishesPage = () => {
   const { id = '' } = useParams()
   const { data: wishes, isLoading, refetch } = useQuery({
     queryKey: ['wishes'],
-    queryFn: async() => getByWishlist(id)
+    queryFn: async() => getSharedByWishlist(id)
   })
 
   return (
