@@ -9,6 +9,7 @@ import SharedWishlistsPage from './pages/wishlists-shared-to-me/shared-wishlists
 import SignInPage from './pages/Sigin'
 import AuthGuard from './guards/AuthGuard'
 import SharedWishesPage from './pages/wishlists-shared-to-me/shared-wishes'
+import InvitationPage from './pages/invitations/[id]'
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Route path='dashboard' element={<HomePage />} />
             <Route path='wishlists' element={<MyWishlists />} />
             <Route path='wishlists/:id' element={<WishesPage />} />
+            <Route path='invitations/:id' element={<InvitationPage />} />
             <Route path='shared' element={<SharedWishlistsPage />} />
             <Route path='shared/:id' element={<SharedWishesPage />} />
             <Route path='user' element={<UserSettings />} />
