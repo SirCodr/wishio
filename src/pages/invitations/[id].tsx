@@ -2,20 +2,19 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
+import { getById } from "@/services/invitations"
 import { useQuery } from "@tanstack/react-query"
 import { AlertTriangle, Check, Gift, Loader2, User, X } from "lucide-react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 
 export default function InvitationPage() {
-  const { isLoading, error } = useQuery({queryKey: ['invitations'], queryFn: () => new Promise((resolve) => setTimeout(resolve, 2000)), refetchOnWindowFocus: false})
+  const { id } = useParams<{ id: string }>()
+  const { data: invitation, isLoading, error } = useQuery({
+    queryKey: ['invitations'],
+    queryFn: () => id ? getById(id) : Promise.reject(new Error("Invalid ID")),
+    refetchOnWindowFocus: false
+  })
   const navigate = useNavigate()
-
-  const invitation = {
-  senderName: "John Doe",
-  wishlistName: "Birthday Wishlist",
-  itemCount: 5,
-  status: "pending", // Puede ser "pending", "accepted" o "rejected"
-};
 
 const isAccepting = false
 const isRejecting = false
@@ -36,28 +35,28 @@ const handleReject = () => {}
           {/* Sender Information */}
           <div className="flex items-center justify-center">
             <Avatar className="h-16 w-16 mr-4">
-              <AvatarImage src="/placeholder.svg" alt={invitation.senderName} />
+              <AvatarImage src="/placeholder.svg" alt={invitation?.sender_name} />
               <AvatarFallback className="bg-primary/10">
                 <User className="h-8 w-8 text-primary" />
               </AvatarFallback>
             </Avatar>
             <div>
-              <p className="text-lg font-medium">{invitation.senderName}</p>
-              <p className="text-sm text-muted-foreground">has invited you to view their wishlist</p>
+              <p className="text-lg font-medium">{invitation?.sender_name}</p>
+              <p className="text-sm text-muted-foreground">Has invited you to view their wishlist</p>
             </div>
           </div>
 
           {/* Wishlist Information */}
           <div className="bg-primary/5 rounded-lg p-6 text-center">
             <Gift className="h-10 w-10 mx-auto mb-2 text-primary" />
-            <h3 className="text-xl font-bold mb-1">{invitation.wishlistName}</h3>
+            <h3 className="text-xl font-bold mb-1">{invitation?.wishlist_name}</h3>
             <p className="text-muted-foreground">
-              {invitation.itemCount} {invitation.itemCount === 1 ? "item" : "items"}
+              {invitation?.wishes_count} {invitation?.wishes_count === 1 ? "item" : "items"}
             </p>
           </div>
 
           {/* Status Messages */}
-          {invitation.status === "accepted" && (
+          {invitation?.status === "accepted" && (
             <div className="bg-green-50 text-green-700 rounded-lg p-6 text-center">
               <div className="rounded-full bg-green-100 p-3 w-16 h-16 mx-auto mb-3 flex items-center justify-center">
                 <Check className="h-8 w-8" />
@@ -67,7 +66,7 @@ const handleReject = () => {}
             </div>
           )}
 
-          {invitation.status === "rejected" && (
+          {invitation?.status === "rejected" && (
             <div className="bg-red-50 text-red-700 rounded-lg p-6 text-center">
               <div className="rounded-full bg-red-100 p-3 w-16 h-16 mx-auto mb-3 flex items-center justify-center">
                 <X className="h-8 w-8" />
@@ -78,7 +77,7 @@ const handleReject = () => {}
           )}
         </CardContent>
 
-        {invitation.status === "pending" && (
+        {invitation?.status === "pending" && (
           <CardFooter className="flex flex-col space-y-4">
             <p className="text-center text-sm text-muted-foreground mb-2">Would you like to join this wishlist?</p>
             <div className="flex w-full space-x-4">
@@ -123,7 +122,7 @@ const handleReject = () => {}
           </CardFooter>
         )}
 
-        {invitation.status === "rejected" && (
+        {invitation?.status === "rejected" && (
           <CardFooter>
             <Button variant="outline" className="w-full rounded-full" onClick={() => navigate("/")}>
               Close
