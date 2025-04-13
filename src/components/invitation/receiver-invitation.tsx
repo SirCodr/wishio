@@ -9,18 +9,18 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { Check, Gift, Loader2, User, X } from 'lucide-react'
 import { Button } from '../ui/button'
 import { useNavigate } from 'react-router-dom'
-import { Invitation } from '@/types/invitation'
+import { Invitation, InvitationStatus } from '@/types/invitation'
 import { useEffect, useState } from 'react'
 
 type Props = {
   invitation: Invitation | undefined
-  handleAnswer?: (status: string) => void
+  handleAnswer?: (status: InvitationStatus) => void
   isAnswering?: boolean
 }
 
 export default function ReceiverInvitation({ invitation, isAnswering, handleAnswer = () => {} }: Props) {
   const navigate = useNavigate()
-  const [optionSelected, setOptionSelected] = useState<string>('')
+  const [optionSelected, setOptionSelected] = useState<InvitationStatus | undefined>()
 
   useEffect(() => {
     if (optionSelected) handleAnswer(optionSelected)

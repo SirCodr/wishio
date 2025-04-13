@@ -5,5 +5,10 @@ export type Invitation = {
   wishes_count: number
   sender_name: string
   sender_id: string
-  status: "pending" | "accepted" | "rejected"
+  receiver_name: string
+  receiver_email: string
+  status: InvitationStatus
+  created_at: string
 }
+
+export type InvitationStatus = "pending" | "accepted" | "rejected"

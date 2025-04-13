@@ -6,6 +6,7 @@ import { useMutation, useQuery } from "@tanstack/react-query"
 import { useParams } from "react-router-dom"
 import useAuth from "@/hooks/useAuth"
 import SenderInvitation from "@/components/invitation/sender-invitation"
+import { InvitationStatus } from "@/types/invitation"
 
 export default function InvitationPage() {
   const { id } = useParams<{ id: string }>()
@@ -16,14 +17,14 @@ export default function InvitationPage() {
     refetchOnWindowFocus: false
   })
   const invitationAnswer = useMutation({
-    mutationFn: (status: string) =>
+    mutationFn: (status: InvitationStatus) =>
       id ? answer(id, status) : Promise.reject(new Error('Invalid ID')),
       onSettled: () => refetch(),
   })
 
   if (isLoading) return <InvitationLoader />
 
-  if (error) return <InvitationError />
+  if (error || !invitation) return <InvitationError />
 
   if (user?.id === invitation?.sender_id)
     return <SenderInvitation invitation={invitation} />
