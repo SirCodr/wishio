@@ -12,3 +12,7 @@ export async function answer(id: string, answer: InvitationStatus): Promise<void
 export async function send(id: string): Promise<void> {
     return await new HttpRequest().post(`invitations/${id}/send`).then(res => res.data)
 }
+
+export async function cancel(id: string): Promise<void> {
+    return await new HttpRequest().delete(`invitations/${id}`).then(res => res.data)
+}

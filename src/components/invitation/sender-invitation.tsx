@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button, LinkButton } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { answer, send } from "@/services/invitations"
+import { cancel, send } from "@/services/invitations"
 import { Invitation } from "@/types/invitation"
 import { useMutation } from "@tanstack/react-query"
 import { ArrowLeft, Check, Clock, Copy, ExternalLink, Gift, Loader2, Send, Trash, User, X } from "lucide-react"
@@ -18,8 +18,8 @@ type Props = {
 
 export default function SenderInvitation({ invitation }: Props) {
   const navigate = useNavigate()
-  const { mutate: cancel, isPending: isCancelling } = useMutation({
-    mutationFn: () => answer(invitation.id, 'rejected'),
+  const { mutate: handleCancel, isPending: isCancelling } = useMutation({
+    mutationFn: () => cancel(invitation.id),
     onSuccess: () => {
       toast(
         "Invitation cancelled",
@@ -286,7 +286,7 @@ export default function SenderInvitation({ invitation }: Props) {
                         </Button>
                         </AlertDialogCancel>
                         <AlertDialogAction asChild>
-                          <Button variant="destructive" onClick={() => cancel()} disabled={isCancelling}>
+                          <Button variant="destructive" onClick={() => handleCancel()} disabled={isCancelling}>
                           {isCancelling ? (
                             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                           ) : (
