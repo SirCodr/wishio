@@ -29,7 +29,7 @@ export function ShareWishlistModal({ wishlist, onSubmit }: ShareWishlistModalPro
       setIsOpen(false)
     }
   })
-  const { data: emailsShared, isLoading } = useQuery({
+  const { data: emailsShared, isFetching } = useQuery({
     queryKey: [`wishlist-shared-${wishlist.id}-emails`],
     queryFn: () => getSharedEmails(wishlist.id),
     enabled: Boolean(wishlist.is_shared)
@@ -54,8 +54,8 @@ export function ShareWishlistModal({ wishlist, onSubmit }: ShareWishlistModalPro
             Add emails of people you want to share <b>"{wishlist.name}"</b> with.
           </DialogDescription>
         </DialogHeader>
-        {!isLoading && <ShareWishlistForm initialData={emailsShared ?? []} onSubmit={handleShare} />}
-        {isLoading && <Spinner />}
+        {!isFetching && <ShareWishlistForm initialData={emailsShared ?? []} onSubmit={handleShare} />}
+        {isFetching && <Spinner />}
       </DialogContent>
     </Dialog>
   )

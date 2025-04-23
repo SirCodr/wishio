@@ -8,7 +8,7 @@ import { useParams } from 'react-router-dom'
 
 const WishesPage = () => {
   const { id = '' } = useParams()
-  const { data: wishes, isLoading, refetch } = useQuery({
+  const { data: wishes, isFetching, refetch } = useQuery({
     queryKey: ['wishes'],
     queryFn: async() => getByWishlist(id)
   })
@@ -17,18 +17,18 @@ const WishesPage = () => {
     <>
       <div className='w-full flex justify-between pb-6'>
         <h2 className='text-3xl font-bold'>Wishes</h2>
-        {!isLoading && wishes && wishes.length > 0 && (
+        {!isFetching && wishes && wishes.length > 0 && (
           <AddWishModal wishlist_id={id} onSubmit={refetch} />
         )}
       </div>
 
-      {isLoading && (
+      {isFetching && (
         <div className='w-full h-full'>
           <Loader />
         </div>
       )}
 
-      {!isLoading && !wishes?.length && (
+      {!isFetching && !wishes?.length && (
         <section className='flex flex-col items-center justify-center w-full h-[calc(100%-24px)] overflow-auto'>
           <EmptyDataCard
             chidlren={<AddWishModal wishlist_id={id} onSubmit={refetch} />}
@@ -36,7 +36,7 @@ const WishesPage = () => {
         </section>
       )}
 
-      {!isLoading && wishes && (
+      {!isFetching && wishes && (
         <section className='flex flex-wrap gap-8 w-full p-4'>
           {wishes.map((wish) => (
             <div key={wish.id} className='max-w-80'>

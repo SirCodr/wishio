@@ -8,10 +8,11 @@ import WishlistItem from '@/components/wishlist-item'
 
 export default function MyWishlistsPage() {
   const { user } = useAuth()
-  const { data: wishlists, isLoading, refetch } = useQuery({
+  const { data: wishlists, refetch, isFetching } = useQuery({
     queryKey: ['wishlists'],
     queryFn: () => getByUser(user!.id)
   })
+console.log({isFetching});
 
   return (
     <>
@@ -21,21 +22,21 @@ export default function MyWishlistsPage() {
       </div>
 
       {
-        isLoading && (
+        isFetching && (
           <div className='w-full h-full'>
             <Loader />
           </div>
         )
       }
 
-      {!isLoading && !wishlists?.length && (
+      {!isFetching && !wishlists?.length && (
           <section className='flex flex-col items-center justify-center w-full h-full'>
             <EmptyDataCard chidlren={<AddWishlistModal onSubmit={refetch} />} />
           </section>
       )}
 
       <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-        {!isLoading && wishlists &&
+        {!isFetching && wishlists &&
           wishlists.map((wishlist) => (
             <WishlistItem key={wishlist.id} wishlist={wishlist} onSubmit={refetch} />
           ))}
