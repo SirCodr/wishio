@@ -11,7 +11,7 @@ import { InvitationStatus } from "@/types/invitation"
 export default function InvitationPage() {
   const { id } = useParams<{ id: string }>()
   const { user } = useAuth()
-  const { data: invitation, isLoading, error, refetch } = useQuery({
+  const { data: invitation, isFetching, error, refetch } = useQuery({
     queryKey: ['invitations'],
     queryFn: () => id ? getById(id) : Promise.reject(new Error("Invalid ID")),
     refetchOnWindowFocus: false
@@ -22,7 +22,7 @@ export default function InvitationPage() {
       onSettled: () => refetch(),
   })
 
-  if (isLoading) return <InvitationLoader />
+  if (isFetching) return <InvitationLoader />
 
   if (error || !invitation) return <InvitationError />
 

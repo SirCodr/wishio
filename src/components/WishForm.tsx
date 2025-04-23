@@ -36,7 +36,7 @@ export function WishForm({
   editMode
 }: WishFormProps) {
   const { user } = useAuth()
-  const { data: wishlists, isLoading: isWishlistQuerying } = useQuery({
+  const { data: wishlists, isFetching: isWishlistQuerying } = useQuery({
     queryKey: ['user-wishlist'],
     queryFn: () => getByUser(user!.id)
   })
