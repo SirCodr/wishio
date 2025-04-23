@@ -12,7 +12,6 @@ export default function MyWishlistsPage() {
     queryKey: ['wishlists'],
     queryFn: () => getByUser(user!.id)
   })
-console.log({isFetching});
 
   return (
     <>
