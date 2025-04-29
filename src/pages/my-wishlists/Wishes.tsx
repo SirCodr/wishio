@@ -10,7 +10,8 @@ const WishesPage = () => {
   const { id = '' } = useParams()
   const { data: wishes, isFetching, refetch } = useQuery({
     queryKey: ['wishes'],
-    queryFn: async() => getByWishlist(id)
+    queryFn: async() => getByWishlist(id),
+    refetchOnWindowFocus: false,
   })
 
   return (

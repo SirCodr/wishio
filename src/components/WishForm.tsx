@@ -38,7 +38,8 @@ export function WishForm({
   const { user } = useAuth()
   const { data: wishlists, isFetching: isWishlistQuerying } = useQuery({
     queryKey: ['user-wishlist'],
-    queryFn: () => getByUser(user!.id)
+    queryFn: () => getByUser(user!.id),
+    refetchOnWindowFocus: false,
   })
   const { control, register, handleSubmit, formState: { errors } } = useForm<WishCreateDto>({
     resolver: zodResolver(wishCreateSchema),
