@@ -9,10 +9,12 @@ export type Wish = {
 }
 
 export type WishCreateDto = {
-  title: string
-  description: string
-  web_url: string
-  acquired: boolean
-  user_id: string
+  wish: {
+    title: string
+    description: string
+    web_url: string
+    acquired: boolean
+    user_id: string
+  }
   wishlist_id: string
 }

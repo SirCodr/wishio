@@ -15,6 +15,17 @@ type Props = {
 
 export function AddWishModal(props: Props) {
   const { user } = useAuth()
+  const initialData: Partial<WishCreateDto> = {
+    wish: {
+      title: '',
+      description: '',
+      web_url: '',
+      acquired: false,
+      user_id: user!.id
+    },
+    wishlist_id: props.wishlist_id
+  }
+
   const [isOpen, setIsOpen] = React.useState(false)
   const { mutate, isPending } = useMutation({
     mutationFn: create,
@@ -25,7 +36,7 @@ export function AddWishModal(props: Props) {
   })
 
   async function handleWishSubmit(wishData: WishCreateDto) {
-    mutate([wishData])
+    mutate(wishData)
   }
 
   return (
@@ -42,7 +53,7 @@ export function AddWishModal(props: Props) {
             Create a new wish item. Click save when you're done.
           </DialogDescription>
         </DialogHeader>
-        <WishForm onSubmit={handleWishSubmit} isLoading={isPending} initialData={{ acquired: false, user_id: user!.id, wishlist_id: props.wishlist_id }} />
+        <WishForm onSubmit={handleWishSubmit} isLoading={isPending} initialData={initialData} />
       </DialogContent>
     </Dialog>
   )

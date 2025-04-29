@@ -81,7 +81,7 @@ export function WishForm({
             Title
           </Label>
           <Input
-            {...register('title')}
+            {...register('wish.title')}
             required
             className='col-span-3'
           />
@@ -91,7 +91,7 @@ export function WishForm({
             Description
           </Label>
           <Textarea
-           {...register('description')}
+           {...register('wish.description')}
             className='col-span-3'
           />
         </div>
@@ -125,11 +125,11 @@ export function WishForm({
         {
           editMode && (
             <div className='grid grid-cols-4 items-center gap-4'>
-              <Label htmlFor='acquired' className='text-right'>
+              <Label htmlFor='wish.acquired' className='text-right'>
                 Acquired
               </Label>
               <Controller
-                name="acquired"
+                name="wish.acquired"
                 control={control}
                 render={({ field }) => (
                   <Switch
@@ -147,7 +147,7 @@ export function WishForm({
             Web Url
           </Label>
           <Input
-          {...register('web_url')}
+          {...register('wish.web_url')}
             className='col-span-3'
           />
         </div>
