@@ -25,6 +25,14 @@ export function EditWishModal(props: Props) {
     }
   })
 
+  const initialData = {
+   wish: {
+     ...props.wish,
+    user_id: user!.id,
+   },
+    wishlist_id: props.wishlist_id
+  }
+
   async function handleWishSubmit(wishData: Partial<WishCreateDto>) {
     const newWishData = { ...wishData };
     delete newWishData.wishlist_id;
@@ -49,7 +57,7 @@ export function EditWishModal(props: Props) {
             Click update when you're done.
           </DialogDescription>
         </DialogHeader>
-        <WishForm onSubmit={handleWishSubmit} isLoading={isPending} initialData={{ ...props.wish, user_id: user!.id, wishlist_id: props.wishlist_id }} editMode />
+        <WishForm onSubmit={handleWishSubmit} isLoading={isPending} initialData={initialData} editMode />
       </DialogContent>
     </Dialog>
   )
