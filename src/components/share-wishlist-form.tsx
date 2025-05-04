@@ -11,7 +11,7 @@ type Props = {
   editMode?: boolean
 }
 
-export default function ShareWishlistForm({ onSubmit, editMode, initialData = [] }: Props) {
+export default function ShareWishlistForm({ onSubmit, initialData = [] }: Props) {
   const { user } = useAuth()
   const [email, setEmail] = useState('')
   const [emails, setEmails] = useState<string[]>(initialData)
@@ -44,6 +44,30 @@ export default function ShareWishlistForm({ onSubmit, editMode, initialData = []
     setEmails(emails.filter((e) => e !== emailToRemove))
   }
 
+  function didEmailsChanged () {
+    return (initialData.length > 0 && emails.length === 0) || emails.some((e) => !initialData.includes(e))
+  }
+
+  function canShareEmail() {
+    if (emails.length === 0) return false
+
+    const hasOwnEmail = emails.some(e => e.toLowerCase() === user!.email!.toLowerCase())
+
+    if (hasOwnEmail) return false
+
+    if (!didEmailsChanged()) return false
+
+    return true
+  }
+
+  function canUpdateEmail() {
+    if (initialData.length === 0 && email.length === 0) return false
+
+    if (!didEmailsChanged()) return false
+
+    return true
+  }
+
   return (
     <div className='grid gap-4'>
       <form className='grid gap-4' onSubmit={handleAddEmail}>
@@ -61,22 +85,42 @@ export default function ShareWishlistForm({ onSubmit, editMode, initialData = []
               className='mt-1.5'
             />
           </div>
-          <Button
-            type='submit'
-            size='icon'
-            className='flex-shrink-0'
-          >
+          <Button type='submit' size='icon' className='flex-shrink-0'>
             <Plus className='h-4 w-4' />
           </Button>
         </div>
         <div className='flex-1 max-h-[200px] overflow-y-auto'>
-          {emails && emails.length > 0 && <EmailList emails={emails} onRemove={handleRemoveEmail} />}
-          {error && <div className='text-center text-sm text-red-500'>Error: {error}</div>}
+          {emails && emails.length > 0 && (
+            <EmailList emails={emails} onRemove={handleRemoveEmail} />
+          )}
+          {error && (
+            <div className='text-center text-sm text-red-500'>
+              Error: {error}
+            </div>
+          )}
         </div>
       </form>
-      <Button onClick={() => onSubmit(emails)} className='w-full sm:w-auto' disabled={!emails.length}>
-        {editMode ? 'Update emails' : 'Share Wishlist'}
-      </Button>
+      {
+        initialData.length === 0 ?
+        (
+          <Button
+            onClick={() => onSubmit(emails)}
+            className='w-full sm:w-auto'
+            disabled={!canShareEmail()}
+          >
+            Share Wishlist
+          </Button>
+        ) :
+        (
+          <Button
+            onClick={() => onSubmit(emails)}
+            className='w-full sm:w-auto'
+            disabled={!canUpdateEmail()}
+          >
+            Update Access
+          </Button>
+        )
+      }
     </div>
   )
 }
