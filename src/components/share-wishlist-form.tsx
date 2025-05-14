@@ -1,4 +1,4 @@
-import { Plus, X } from 'lucide-react'
+import { Loader2, Plus, X } from 'lucide-react'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
@@ -6,12 +6,13 @@ import { FormEvent, useState } from 'react'
 import useAuth from '@/hooks/useAuth'
 
 type Props = {
-  onSubmit: (emails: string[]) => void,
+  share: (emails: string[]) => void,
+  edit: (emails: string[]) => void,
+  isLoading?: boolean,
   initialData?: string[]
-  editMode?: boolean
 }
 
-export default function ShareWishlistForm({ onSubmit, initialData = [] }: Props) {
+export default function ShareWishlistForm({ share, edit, isLoading, initialData = [] }: Props) {
   const { user } = useAuth()
   const [email, setEmail] = useState('')
   const [emails, setEmails] = useState<string[]>(initialData)
@@ -45,10 +46,18 @@ export default function ShareWishlistForm({ onSubmit, initialData = [] }: Props)
   }
 
   function didEmailsChanged () {
-    return (initialData.length > 0 && emails.length === 0) || emails.some((e) => !initialData.includes(e))
+    if (initialData.length !== emails.length) {
+      if (emails.length === 0) return true
+
+      return emails.some((e) => !initialData.includes(e))
+    }
+
+    return initialData.some((e) => !emails.includes(e))
   }
 
   function canShareEmail() {
+    if (isLoading) return false
+
     if (emails.length === 0) return false
 
     const hasOwnEmail = emails.some(e => e.toLowerCase() === user!.email!.toLowerCase())
@@ -61,6 +70,8 @@ export default function ShareWishlistForm({ onSubmit, initialData = [] }: Props)
   }
 
   function canUpdateEmail() {
+    if (isLoading) return false
+
     if (initialData.length === 0 && email.length === 0) return false
 
     if (!didEmailsChanged()) return false
@@ -104,20 +115,30 @@ export default function ShareWishlistForm({ onSubmit, initialData = [] }: Props)
         initialData.length === 0 ?
         (
           <Button
-            onClick={() => onSubmit(emails)}
+            onClick={() => share(emails)}
             className='w-full sm:w-auto'
             disabled={!canShareEmail()}
           >
-            Share Wishlist
+            {isLoading ? (
+              <>
+                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                Sharing...
+              </>
+            ) : 'Share Wishlist'}
           </Button>
         ) :
         (
           <Button
-            onClick={() => onSubmit(emails)}
+            onClick={() => edit(emails)}
             className='w-full sm:w-auto'
             disabled={!canUpdateEmail()}
           >
-            Update Access
+            {isLoading ? (
+              <>
+                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                Sharing...
+              </>
+            ) : 'Update Access'}
           </Button>
         )
       }

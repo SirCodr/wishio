@@ -12,7 +12,7 @@ import { DialogTrigger } from "@radix-ui/react-dialog"
 import ShareWishlistForm from "./share-wishlist-form"
 import { WishList } from "@/types/wishlists"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { getSharedEmails, share } from "@/services/wishlists"
+import { getSharedEmails, share, updateAccess } from "@/services/wishlists"
 import { Spinner } from "@chakra-ui/react"
 
 interface ShareWishlistModalProps {
@@ -21,8 +21,16 @@ interface ShareWishlistModalProps {
 }
 
 export function ShareWishlistModal({ wishlist, onSubmit }: ShareWishlistModalProps) {
-  const { mutate } = useMutation({
+  const shareMutation = useMutation({
     mutationFn: async(emails: string[]) => share(wishlist.id, emails),
+    onSuccess: () => {
+      if (onSubmit) onSubmit()
+
+      setIsOpen(false)
+    }
+  })
+  const updateAccessMutation = useMutation({
+    mutationFn: async(emails: string[]) => updateAccess(wishlist.id, emails),
     onSuccess: () => {
       if (onSubmit) onSubmit()
 
@@ -37,24 +45,37 @@ export function ShareWishlistModal({ wishlist, onSubmit }: ShareWishlistModalPro
   const [isOpen, setIsOpen] = useState(false)
 
   const handleShare = (emails: string[]) => {
-    mutate(emails)
+    shareMutation.mutate(emails)
   }
+
+  const handleUpdateAccess = (emails: string[]) => {
+    updateAccessMutation.mutate(emails)
+  }
+
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant='outline' size='sm'>
-            <Share2 className='mr-2 h-4 w-4' /> Share
-          </Button>
+          <Share2 className='mr-2 h-4 w-4' /> Share
+        </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
           <DialogTitle>Share Wishlist</DialogTitle>
           <DialogDescription>
-            Add emails of people you want to share <b>"{wishlist.name}"</b> with.
+            Add emails of people you want to share <b>"{wishlist.name}"</b>{' '}
+            with.
           </DialogDescription>
         </DialogHeader>
-        {!isFetching && <ShareWishlistForm initialData={emailsShared ?? []} onSubmit={handleShare} />}
+        {!isFetching && (
+          <ShareWishlistForm
+            initialData={emailsShared ?? []}
+            isLoading={shareMutation.isPending  || updateAccessMutation.isPending }
+            share={handleShare}
+            edit={handleUpdateAccess}
+          />
+        )}
         {isFetching && <Spinner />}
       </DialogContent>
     </Dialog>
