@@ -1,5 +1,5 @@
 import { Header } from "@/components/header";
-import { TimelineView } from "../timeline/components/timeline-view";
+import { TimelineView } from "@/modules/timeline/components/timeline-view";
 
 export default function HomePage() {
   return (
