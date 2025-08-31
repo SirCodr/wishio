@@ -1,13 +1,7 @@
 import { Header } from "@/components/header";
 import { TimelineView } from "@/modules/timeline/components/timeline-view";
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
 
 export default async function HomePage() {
-  const { isAuthenticated } = await auth()
-
-  if (!isAuthenticated) redirect("/sign-in")
-
   return (
     <div className="min-h-screen bg-background">
       <Header />

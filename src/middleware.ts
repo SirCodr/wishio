@@ -1,13 +1,15 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
-const isSSOcallback = createRouteMatcher(['/sign-in/sso-callback']);
+const isPublicRoute = createRouteMatcher([
+  '/',
+  '/sign-in(.*)',
+  '/sign-up(.*)',
+]);
 
-export default clerkMiddleware((auth, req) => {
-  // Permitir siempre acceder al callback sin autenticación
-  if (isSSOcallback(req)) {
-    return;
+export default clerkMiddleware(async (auth, req) => {
+  if (!isPublicRoute(req)) {
+    await auth.protect()
   }
-  // Aquí puedes añadir más lógica si deseas proteger rutas específicas
 });
 
 export const config = {
