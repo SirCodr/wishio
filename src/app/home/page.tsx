@@ -1,7 +1,23 @@
-import { Header } from "@/core/header";
+import { Header } from "@/components/header";
+import { TimelineView } from "../timeline/components/timeline-view";
 
 export default function HomePage() {
   return (
-    <Header />
+    <div className="min-h-screen bg-background">
+      <Header />
+      <main className="container mx-auto p-6">
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+                Timeline
+              </h1>
+              <p className="text-muted-foreground">Manage your chronological records</p>
+            </div>
+          </div>
+          <TimelineView />
+        </div>
+      </main>
+    </div>
   )
 }
