@@ -19,9 +19,8 @@ const dmSans = DM_Sans({
 })
 
 export const metadata: Metadata = {
-  title: "Chrono - Timeline Management",
-  description: "Manage your chronological data with ease",
-  generator: "v0.app",
+  title: "Wishio",
+  description: "Manage your wishes",
 }
 
 export default function RootLayout({

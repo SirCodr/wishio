@@ -1,8 +1,8 @@
 import { SignIn } from "@clerk/nextjs";
 
 export const metadata = {
-  title: "Sign In - Chrono",
-  description: "Sign in to your Chrono account",
+  title: "Sign In - Wishio",
+  description: "Sign in to your Wishio account",
 };
 
 export default function SignInPage() {
