@@ -1,4 +1,4 @@
-import SupabaseProvider from "@/lib/supabase/client-provider";
+import SupabaseProvider from "@lib/supabase/client-provider";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
