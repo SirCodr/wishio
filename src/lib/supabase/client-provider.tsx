@@ -1,6 +1,7 @@
 'use client'
 
 import { useSession } from "@clerk/nextjs";
+import { DotsLoader } from "@components/ui/loader/dots-loader";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { createContext, useContext, useEffect, useState } from "react";
 
@@ -36,7 +37,7 @@ export default function SupabaseProvider( { children }: { children: React.ReactN
 
   return (
     <Context.Provider value={{ supabase, isLoaded }}>
-      {!isLoaded ? <div>Loading...</div> : children}
+      {!isLoaded ? <DotsLoader /> : children}
     </Context.Provider>
   )
 }
