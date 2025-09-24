@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader } from "@components/ui/card"
 import { Badge } from "@components/ui/badge"
 import { ExternalLink, Heart, Globe } from "lucide-react"
 import { Button } from "@components/ui/button"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@components/ui/tooltip"
 
 interface WishCardStandardProps {
   title: string
@@ -27,6 +28,8 @@ export function WishCardStandard({
       return url
     }
   }
+
+  const needsTooltip = description && description.length > 80
 
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 border-border/50 hover:border-primary/20 hover:-translate-y-1 overflow-hidden">
@@ -55,7 +58,26 @@ export function WishCardStandard({
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed mb-4">{description}</p>
+        <div className="h-12 mb-4 flex items-start">
+          {description ? (
+            needsTooltip ? (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <p className="text-sm text-muted-foreground leading-relaxed truncate cursor-help">{description}</p>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p className="text-sm">{description}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : (
+              <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">{description}</p>
+            )
+          ) : (
+            <div className="h-full" />
+          )}
+        </div>
         <Button
           variant="secondary"
           size="sm"
