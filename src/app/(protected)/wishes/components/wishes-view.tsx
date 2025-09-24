@@ -1,7 +1,7 @@
 import { Tables } from '@lib/supabase/database.types'
 import { createServerClient } from '@lib/supabase/server'
 import { WishCardStandard } from '@modules/wishes/components/wish-card-standard'
-import { EmptyWishes } from './empty-wishes'
+import { EmptyWishes } from '../../../../modules/wishes/components/empty-wishes'
 
 export default async function WishesView() {
   const supabase = await createServerClient()

@@ -1,7 +1,7 @@
 import WishesView from "./components/wishes-view"
 import { Suspense } from "react"
-import WishesSkeletonLoader from "./components/wishes-skeleton-loader"
-import WishesHeaderLoader from "./components/wishes-header-loader"
+import WishesSkeletonLoader from "../../../modules/wishes/components/wishes-skeleton-loader"
+import WishesHeaderLoader from "../../../modules/wishes/components/wishes-header-loader"
 import WishesHeader from "./components/wishes-header"
 
 export default async function Home() {
