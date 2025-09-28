@@ -46,12 +46,17 @@ export function WishCardStandard({
               </Badge>
             </div>
           </div>
-          <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-accent shrink-0" onClick={onToggleFavorite}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-9 w-9 p-0 shrink-0 hover:bg-transparent group/heart"
+            onClick={onToggleFavorite}
+          >
             <Heart
-              className={`h-4 w-4 transition-all ${
+              className={`h-4 w-4 transition-all duration-200 ${
                 isFavorite
-                  ? "fill-red-500 text-red-500 scale-110"
-                  : "text-muted-foreground hover:text-red-500 hover:scale-110"
+                  ? "fill-red-500 text-red-500"
+                  : "text-muted-foreground group-hover/heart:text-red-400 group-hover/heart:scale-105"
               }`}
             />
           </Button>
