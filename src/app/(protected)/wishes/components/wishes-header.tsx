@@ -1,8 +1,9 @@
-import { Button } from '@components/ui/button'
 import { Badge } from '@components/ui/badge'
-import { Heart, Plus } from 'lucide-react'
+import { Heart } from 'lucide-react'
 import { Tables } from '@lib/supabase/database.types'
 import { createServerClient } from '@lib/supabase/server'
+import WishForm from '../../../../modules/wishes/components/wish-form'
+import AddWish from '@modules/wishes/components/add-wish'
 
 export default async function WishesHeader() {
   const supabase = await createServerClient()
@@ -24,12 +25,7 @@ export default async function WishesHeader() {
           <span>{wishes?.filter((w) => w.isFavorite).length} favoritos</span>
         </div>
       </div>
-      {wishes && wishes.length > 0 && (
-        <Button className='bg-primary hover:bg-primary/90 text-primary-foreground shadow-md'>
-          <Plus className='h-4 w-4 mr-2' />
-          Agregar wish
-        </Button>
-      )}
+      {wishes && wishes.length > 0 && <AddWish />}
     </div>
   )
 }

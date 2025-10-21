@@ -31,7 +31,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
-        <body className={`font-sans ${spaceGrotesk.variable} ${dmSans.variable} antialiased`}>
+        <body className={`font-sans ${spaceGrotesk.variable} ${dmSans.variable} theme-modern antialiased`}>
           {children}
           <Toaster />
         </body>
