@@ -2,18 +2,21 @@ import { Tables } from '@lib/supabase/database.types'
 import { createServerClient } from '@lib/supabase/server'
 import { WishCardStandard } from '@modules/wishes/components/wish-card-standard'
 import { EmptyWishes } from '../../../../modules/wishes/components/empty-wishes'
+import { auth } from '@clerk/nextjs/server'
 
 export default async function WishesView() {
   const supabase = await createServerClient()
+  const { userId } = await auth()
   const { data: wishes } = await supabase
     .from('wishes')
     .select('*')
+    .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .overrideTypes<Tables<'wishes'>[]>()
 
   if (!wishes || wishes.length === 0) {
     return (
-      <div className="col-span-full">
+      <div className='col-span-full'>
         <EmptyWishes />
       </div>
     )
