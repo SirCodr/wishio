@@ -17,7 +17,13 @@ export default function AddWish() {
         <Plus className='h-4 w-4 mr-2' />
         Agregar wish
       </Button>
-      {isOpen && <WishForm isOpen={isOpen} setOpen={setOpen} />}
+      {isOpen && (
+        <WishForm
+          isOpen={isOpen}
+          setOpen={setOpen}
+          onSubmit={() => setOpen(false)}
+        />
+      )}
     </>
   )
 }
