@@ -2,7 +2,6 @@ import { Badge } from '@components/ui/badge'
 import { Heart } from 'lucide-react'
 import { Tables } from '@lib/supabase/database.types'
 import { createServerClient } from '@lib/supabase/server'
-import WishForm from '../../../../modules/wishes/components/wish-form'
 import AddWish from '@modules/wishes/components/add-wish'
 
 export default async function WishesHeader() {
