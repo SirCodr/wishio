@@ -3,12 +3,15 @@ import { Heart } from 'lucide-react'
 import { Tables } from '@lib/supabase/database.types'
 import { createServerClient } from '@lib/supabase/server'
 import AddWish from '@modules/wishes/components/add-wish'
+import { auth } from '@clerk/nextjs/server'
 
 export default async function WishesHeader() {
   const supabase = await createServerClient()
+  const { userId } = await auth()
   const { data: wishes } = await supabase
     .from('wishes')
     .select('*')
+    .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .overrideTypes<Tables<'wishes'>[]>()
 
