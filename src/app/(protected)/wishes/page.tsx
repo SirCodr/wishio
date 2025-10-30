@@ -7,15 +7,6 @@ import WishesHeader from './components/wishes-header'
 export default async function Home() {
   return (
     <>
-      <div className='text-center mb-8'>
-        <h1 className='text-4xl font-bold text-foreground mb-2 text-balance'>
-          Wishio
-        </h1>
-        <p className='text-muted-foreground text-lg'>
-          Centraliza todos tus deseos de compra en un solo lugar
-        </p>
-      </div>
-
       <Suspense fallback={<WishesHeaderLoader />}>
         <WishesHeader />
       </Suspense>
