@@ -8,12 +8,12 @@ import {
   DialogDescription,
   DialogFooter,
   DialogClose
-} from '@components/ui/dialog'
-import { Input } from '@components/ui/input'
-import { Switch } from '@components/ui/switch'
-import { Textarea } from '@components/ui/textarea'
-import { Label } from '@components/ui/label'
-import { Button } from '@components/ui/button'
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Switch } from '@/components/ui/switch'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
 import { useActionState, useEffect } from 'react'
 import { WishActionState } from '../types/wish'
 import { createWish } from '../../../app/(protected)/wishes/actions'

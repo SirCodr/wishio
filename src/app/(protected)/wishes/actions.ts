@@ -1,10 +1,10 @@
 'use server'
 
-import { createServerClient } from '@lib/supabase/server'
+import { createServerClient } from '@/lib/supabase/server'
 import { auth } from '@clerk/nextjs/server'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
-import { WishActionState, WishFormPayload } from '@modules/wishes/types/wish'
+import { WishActionState, WishFormPayload } from '@/modules/wishes/types/wish'
 
 export async function createWish(prevState: WishActionState, data: FormData) {
   const postCreationSchema: z.ZodType<WishFormPayload> = z.object({

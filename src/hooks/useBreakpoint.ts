@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BREAKPOINTS } from '@lib/breakpoints'
+import { BREAKPOINTS } from '@/lib/breakpoints'
 
 type Breakpoint = (typeof BREAKPOINTS)[keyof typeof BREAKPOINTS]
 type BreakpointState = Record<Breakpoint, boolean>

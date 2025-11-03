@@ -1,5 +1,5 @@
-import { Button } from '@components/ui/button'
-import { Badge } from '@components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { Heart, Loader, Plus } from 'lucide-react'
 
 export default function WishesHeaderLoader() {
@@ -13,9 +13,7 @@ export default function WishesHeaderLoader() {
         <div className='flex items-center gap-2 text-sm text-muted-foreground'>
           <Heart className='h-4 w-4 fill-red-500 text-red-500' />
           <Loader className='h-4 w-4 animate-spin' />
-          <span>
-            favoritos
-          </span>
+          <span>favoritos</span>
         </div>
       </div>
       <Button className='bg-primary hover:bg-primary/90 text-primary-foreground shadow-md'>

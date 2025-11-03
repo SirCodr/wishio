@@ -1,7 +1,7 @@
 'use client'
 
-import { Card, CardContent, CardHeader } from '@components/ui/card'
-import { Badge } from '@components/ui/badge'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import {
   ExternalLink,
   Heart,
@@ -10,19 +10,19 @@ import {
   Pencil,
   Trash2
 } from 'lucide-react'
-import { Button } from '@components/ui/button'
+import { Button } from '@/components/ui/button'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
-} from '@components/ui/tooltip'
+} from '@/components/ui/tooltip'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger
-} from '@components/ui/dropdown-menu'
+} from '@/components/ui/dropdown-menu'
 
 interface WishCardStandardProps {
   title: string

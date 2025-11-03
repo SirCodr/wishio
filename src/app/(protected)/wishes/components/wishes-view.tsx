@@ -1,6 +1,6 @@
-import { Tables } from '@lib/supabase/database.types'
-import { createServerClient } from '@lib/supabase/server'
-import { WishCardStandard } from '@modules/wishes/components/wish-card-standard'
+import { Tables } from '@/lib/supabase/database.types'
+import { createServerClient } from '@/lib/supabase/server'
+import { WishCardStandard } from '@/modules/wishes/components/wish-card-standard'
 import { EmptyWishes } from '../../../../modules/wishes/components/empty-wishes'
 import { auth } from '@clerk/nextjs/server'
 

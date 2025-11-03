@@ -1,7 +1,7 @@
-import { Badge } from '@components/ui/badge'
-import { Tables } from '@lib/supabase/database.types'
-import { createServerClient } from '@lib/supabase/server'
-import AddWish from '@modules/wishes/components/add-wish'
+import { Badge } from '@/components/ui/badge'
+import { Tables } from '@/lib/supabase/database.types'
+import { createServerClient } from '@/lib/supabase/server'
+import AddWish from '@/modules/wishes/components/add-wish'
 import { auth } from '@clerk/nextjs/server'
 
 export default async function WishesHeader() {

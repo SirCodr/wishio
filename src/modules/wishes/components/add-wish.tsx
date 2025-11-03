@@ -1,8 +1,8 @@
 'use client'
 
-import { Button } from '@components/ui/button'
-import useBreakpoint from '@hooks/useBreakpoint'
-import WishForm from '@modules/wishes/components/wish-form'
+import { Button } from '@/components/ui/button'
+import useBreakpoint from '@/hooks/useBreakpoint'
+import WishForm from '@/modules/wishes/components/wish-form'
 import { Plus } from 'lucide-react'
 import { useState } from 'react'
 
