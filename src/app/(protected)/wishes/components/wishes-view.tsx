@@ -25,6 +25,7 @@ export default async function WishesView() {
   return wishes.map((wish) => (
     <WishCardStandard
       key={wish.id}
+      id={wish.id}
       title={wish.title}
       url={wish.url}
       description={wish.description || ''}

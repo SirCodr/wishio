@@ -23,26 +23,35 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { useState } from 'react'
+import WishForm from './wish-form'
+import { DeleteWishDialog } from './delete-wish-form'
+
+const MODALS = {
+  EDIT: 'edit',
+  DELETE: 'delete'
+} as const
 
 interface WishCardStandardProps {
+  id: string
   title: string
   url: string
   description?: string
   onToggleFavorite?: () => void
   isFavorite?: boolean
-  onEdit?: () => void
-  onDelete?: () => void
 }
 
 export function WishCardStandard({
+  id,
   title,
   url,
   description,
   onToggleFavorite,
-  isFavorite = false,
-  onEdit,
-  onDelete
+  isFavorite = false
 }: WishCardStandardProps) {
+  const [currentModal, setCurrentModal] = useState<
+    (typeof MODALS)[keyof typeof MODALS] | null
+  >(null)
   const getDomain = (url: string) => {
     try {
       return new URL(url).hostname.replace('www.', '')
@@ -53,23 +62,32 @@ export function WishCardStandard({
 
   const needsTooltip = description && description.length > 80
 
+  const handleFormSubmit = () => {
+    setCurrentModal(null)
+  }
+
+  const handleDeleteConfirm = () => {
+    setCurrentModal(null)
+  }
+
   return (
-    <Card className='group hover:shadow-lg transition-all duration-300 border-border/50 hover:border-primary/20 hover:-translate-y-1 overflow-hidden'>
-      <CardHeader className='pb-3'>
-        <div className='flex items-start justify-between gap-3'>
-          <div className='flex-1 min-w-0'>
-            <h3 className='font-semibold text-base text-foreground line-clamp-2 group-hover:text-primary transition-colors leading-tight'>
-              {title}
-            </h3>
-            <div className='flex items-center gap-2 mt-2'>
-              <Globe className='h-3.5 w-3.5 text-muted-foreground' />
-              <Badge variant='outline' className='text-xs font-medium'>
-                {getDomain(url)}
-              </Badge>
+    <>
+      <Card className='group hover:shadow-lg transition-all duration-300 border-border/50 hover:border-primary/20 hover:-translate-y-1 overflow-hidden'>
+        <CardHeader className='pb-3'>
+          <div className='flex items-start justify-between gap-3'>
+            <div className='flex-1 min-w-0'>
+              <h3 className='font-semibold text-base text-foreground line-clamp-2 group-hover:text-primary transition-colors leading-tight'>
+                {title}
+              </h3>
+              <div className='flex items-center gap-2 mt-2'>
+                <Globe className='h-3.5 w-3.5 text-muted-foreground' />
+                <Badge variant='outline' className='text-xs font-medium'>
+                  {getDomain(url)}
+                </Badge>
+              </div>
             </div>
-          </div>
-          <div className='flex items-center gap-1 shrink-0'>
-            {/*
+            <div className='flex items-center gap-1 shrink-0'>
+              {/*
               //TODO: Re-add favorite functionality
              <Button
               variant='ghost'
@@ -85,68 +103,96 @@ export function WishCardStandard({
                 }`}
               />
             </Button> */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  className='h-9 w-9 p-0 hover:bg-transparent'
-                >
-                  <MoreVertical className='h-4 w-4 text-muted-foreground' />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align='end' className='w-40'>
-                <DropdownMenuItem onClick={onEdit} className='cursor-pointer'>
-                  <Pencil className='h-4 w-4 mr-2' />
-                  Editar
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={onDelete}
-                  className='cursor-pointer text-destructive focus:text-destructive'
-                >
-                  <Trash2 className='h-4 w-4 mr-2' />
-                  Eliminar
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant='ghost'
+                    size='sm'
+                    className='h-9 w-9 p-0 hover:bg-transparent'
+                  >
+                    <MoreVertical className='h-4 w-4 text-muted-foreground' />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align='end' className='w-40'>
+                  <DropdownMenuItem
+                    onClick={() => setCurrentModal(MODALS.EDIT)}
+                    className='cursor-pointer'
+                  >
+                    <Pencil className='h-4 w-4 mr-2' />
+                    Editar
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => setCurrentModal(MODALS.DELETE)}
+                    className='cursor-pointer text-destructive focus:text-destructive'
+                  >
+                    <Trash2 className='h-4 w-4 mr-2' />
+                    Eliminar
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
-        </div>
-      </CardHeader>
-      <CardContent className='pt-0'>
-        <div className='h-12 mb-4 flex items-start'>
-          {description ? (
-            needsTooltip ? (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <p className='text-sm text-muted-foreground leading-relaxed truncate cursor-help'>
-                      {description}
-                    </p>
-                  </TooltipTrigger>
-                  <TooltipContent className='max-w-xs'>
-                    <p className='text-sm'>{description}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+        </CardHeader>
+        <CardContent className='pt-0'>
+          <div className='h-12 mb-4 flex items-start'>
+            {description ? (
+              needsTooltip ? (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <p className='text-sm text-muted-foreground leading-relaxed truncate cursor-help'>
+                        {description}
+                      </p>
+                    </TooltipTrigger>
+                    <TooltipContent className='max-w-xs'>
+                      <p className='text-sm'>{description}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ) : (
+                <p className='text-sm text-muted-foreground leading-relaxed line-clamp-2'>
+                  {description}
+                </p>
+              )
             ) : (
-              <p className='text-sm text-muted-foreground leading-relaxed line-clamp-2'>
-                {description}
-              </p>
-            )
-          ) : (
-            <div className='h-full' />
-          )}
-        </div>
-        <Button
-          variant='secondary'
-          size='sm'
-          className='w-full transition-all'
-          onClick={() => window.open(url, '_blank')}
-        >
-          <ExternalLink className='h-4 w-4 mr-2' />
-          Ver sitio
-        </Button>
-      </CardContent>
-    </Card>
+              <div className='h-full' />
+            )}
+          </div>
+          <Button
+            variant='secondary'
+            size='sm'
+            className='w-full transition-all'
+            onClick={() => window.open(url, '_blank')}
+          >
+            <ExternalLink className='h-4 w-4 mr-2' />
+            Ver sitio
+          </Button>
+        </CardContent>
+      </Card>
+      {currentModal === MODALS.EDIT && (
+        <WishForm
+          key={MODALS.EDIT + id}
+          isOpen={true}
+          setOpen={(isOpen: boolean) => {
+            if (isOpen) setCurrentModal(MODALS.EDIT)
+            else setCurrentModal(null)
+          }}
+          onSubmit={handleFormSubmit}
+          // initialData={{ title, url, description }}
+        />
+      )}
+
+      {currentModal === MODALS.DELETE && (
+        <DeleteWishDialog
+          open={true}
+          onOpenChange={(isOpen: boolean) => {
+            if (isOpen) setCurrentModal(MODALS.DELETE)
+            else setCurrentModal(null)
+          }}
+          onConfirm={handleDeleteConfirm}
+          wishTitle={title}
+        />
+      )}
+    </>
   )
 }
