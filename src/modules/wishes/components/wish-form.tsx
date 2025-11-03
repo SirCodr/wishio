@@ -61,20 +61,14 @@ export default function WishForm({ isOpen, setOpen, onSubmit }: Props) {
             <Label htmlFor='title' className='label-required'>
               Título
             </Label>
-            <Input id='title' name='title' defaultValue={state.values.title} />
+            <Input
+              id='title'
+              name='title'
+              defaultValue={state.values.title}
+              placeholder='Ej: iPhone 15 Pro Max 256GB'
+            />
             {state.error?.title && !isPending && (
               <p className='text-sm text-red-600'>{state.error.title}</p>
-            )}
-          </div>
-          <div className='grid gap-3'>
-            <Label htmlFor='description'>Descripción</Label>
-            <Textarea
-              id='description'
-              name='description'
-              defaultValue={state.values.description}
-            />
-            {state.error?.description && !isPending && (
-              <p className='text-sm text-red-600'>{state.error.description}</p>
             )}
           </div>
           <div className='grid gap-3'>
@@ -86,9 +80,22 @@ export default function WishForm({ isOpen, setOpen, onSubmit }: Props) {
               id='url'
               name='url'
               defaultValue={state.values.url}
+              placeholder='https://ejemplo.com/producto'
             />
             {state.error?.url && !isPending && (
               <p className='text-sm text-red-600'>{state.error.url}</p>
+            )}
+          </div>
+          <div className='grid gap-3'>
+            <Label htmlFor='description'>Descripción</Label>
+            <Textarea
+              id='description'
+              name='description'
+              defaultValue={state.values.description}
+              placeholder='Agrega detalles sobre el producto...'
+            />
+            {state.error?.description && !isPending && (
+              <p className='text-sm text-red-600'>{state.error.description}</p>
             )}
           </div>
           <div className='grid gap-3'>
