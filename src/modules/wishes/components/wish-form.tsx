@@ -98,22 +98,6 @@ export default function WishForm({ isOpen, setOpen, onSubmit }: Props) {
               <p className='text-sm text-red-600'>{state.error.description}</p>
             )}
           </div>
-          <div className='grid gap-3'>
-            <Label htmlFor='favorite'>Favorito</Label>
-            <Switch
-              id='favorite'
-              name='isFavorite'
-              defaultChecked={state.values.isFavorite === 'true'}
-            />
-            {state.error?.isFavorite && !isPending && (
-              <p className='text-sm text-red-600'>{state.error.isFavorite}</p>
-            )}
-            <input
-              type='hidden'
-              name='isFavorite'
-              defaultValue={state.values.isFavorite}
-            />
-          </div>
           <DialogFooter>
             <DialogClose asChild>
               <Button variant='outline' disabled={isPending}>
