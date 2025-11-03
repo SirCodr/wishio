@@ -176,3 +176,10 @@
     @apply bg-background text-foreground;
   }
 }
+
+.label-required {
+  &::after {
+    content: ' *';
+    color: var(--destructive);
+  }
+}

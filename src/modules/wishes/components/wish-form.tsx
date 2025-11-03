@@ -58,7 +58,9 @@ export default function WishForm({ isOpen, setOpen, onSubmit }: Props) {
         </DialogHeader>
         <form className='grid gap-4' action={formAction}>
           <div className='grid gap-3'>
-            <Label htmlFor='title'>Título*</Label>
+            <Label htmlFor='title' className='label-required'>
+              Título
+            </Label>
             <Input id='title' name='title' defaultValue={state.values.title} />
             {state.error?.title && !isPending && (
               <p className='text-sm text-red-600'>{state.error.title}</p>
@@ -76,7 +78,9 @@ export default function WishForm({ isOpen, setOpen, onSubmit }: Props) {
             )}
           </div>
           <div className='grid gap-3'>
-            <Label htmlFor='url'>Url*</Label>
+            <Label htmlFor='url' className='label-required'>
+              Url
+            </Label>
             <Input
               type='url'
               id='url'
