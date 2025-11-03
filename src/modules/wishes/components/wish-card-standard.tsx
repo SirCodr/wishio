@@ -69,7 +69,9 @@ export function WishCardStandard({
             </div>
           </div>
           <div className='flex items-center gap-1 shrink-0'>
-            <Button
+            {/*
+              //TODO: Re-add favorite functionality
+             <Button
               variant='ghost'
               size='sm'
               className='h-9 w-9 p-0 shrink-0 hover:bg-transparent group/heart'
@@ -82,7 +84,7 @@ export function WishCardStandard({
                     : 'text-muted-foreground group-hover/heart:text-red-400 group-hover/heart:scale-105'
                 }`}
               />
-            </Button>
+            </Button> */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
