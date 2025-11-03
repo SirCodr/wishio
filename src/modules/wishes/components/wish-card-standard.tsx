@@ -2,7 +2,14 @@
 
 import { Card, CardContent, CardHeader } from '@components/ui/card'
 import { Badge } from '@components/ui/badge'
-import { ExternalLink, Heart, Globe } from 'lucide-react'
+import {
+  ExternalLink,
+  Heart,
+  Globe,
+  MoreVertical,
+  Pencil,
+  Trash2
+} from 'lucide-react'
 import { Button } from '@components/ui/button'
 import {
   Tooltip,
@@ -10,6 +17,12 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@components/ui/tooltip'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@components/ui/dropdown-menu'
 
 interface WishCardStandardProps {
   title: string
@@ -17,6 +30,8 @@ interface WishCardStandardProps {
   description?: string
   onToggleFavorite?: () => void
   isFavorite?: boolean
+  onEdit?: () => void
+  onDelete?: () => void
 }
 
 export function WishCardStandard({
@@ -24,7 +39,9 @@ export function WishCardStandard({
   url,
   description,
   onToggleFavorite,
-  isFavorite = false
+  isFavorite = false,
+  onEdit,
+  onDelete
 }: WishCardStandardProps) {
   const getDomain = (url: string) => {
     try {
@@ -51,20 +68,46 @@ export function WishCardStandard({
               </Badge>
             </div>
           </div>
-          <Button
-            variant='ghost'
-            size='sm'
-            className='h-9 w-9 p-0 shrink-0 hover:bg-transparent group/heart'
-            onClick={onToggleFavorite}
-          >
-            <Heart
-              className={`h-4 w-4 transition-all duration-200 ${
-                isFavorite
-                  ? 'fill-red-500 text-red-500'
-                  : 'text-muted-foreground group-hover/heart:text-red-400 group-hover/heart:scale-105'
-              }`}
-            />
-          </Button>
+          <div className='flex items-center gap-1 shrink-0'>
+            <Button
+              variant='ghost'
+              size='sm'
+              className='h-9 w-9 p-0 shrink-0 hover:bg-transparent group/heart'
+              onClick={onToggleFavorite}
+            >
+              <Heart
+                className={`h-4 w-4 transition-all duration-200 ${
+                  isFavorite
+                    ? 'fill-red-500 text-red-500'
+                    : 'text-muted-foreground group-hover/heart:text-red-400 group-hover/heart:scale-105'
+                }`}
+              />
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant='ghost'
+                  size='sm'
+                  className='h-9 w-9 p-0 hover:bg-transparent'
+                >
+                  <MoreVertical className='h-4 w-4 text-muted-foreground' />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align='end' className='w-40'>
+                <DropdownMenuItem onClick={onEdit} className='cursor-pointer'>
+                  <Pencil className='h-4 w-4 mr-2' />
+                  Editar
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={onDelete}
+                  className='cursor-pointer text-destructive focus:text-destructive'
+                >
+                  <Trash2 className='h-4 w-4 mr-2' />
+                  Eliminar
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </CardHeader>
       <CardContent className='pt-0'>
