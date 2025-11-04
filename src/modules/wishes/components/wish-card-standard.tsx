@@ -2,14 +2,7 @@
 
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import {
-  ExternalLink,
-  Heart,
-  Globe,
-  MoreVertical,
-  Pencil,
-  Trash2
-} from 'lucide-react'
+import { ExternalLink, Globe, MoreVertical, Pencil, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Tooltip,
@@ -39,11 +32,7 @@ interface WishCardStandardProps {
   isFavorite?: boolean
 }
 
-export function WishCardStandard({
-  wish,
-  onToggleFavorite,
-  isFavorite = false
-}: WishCardStandardProps) {
+export function WishCardStandard({ wish }: WishCardStandardProps) {
   const [currentModal, setCurrentModal] = useState<
     (typeof MODALS)[keyof typeof MODALS] | null
   >(null)
@@ -58,10 +47,6 @@ export function WishCardStandard({
   const needsTooltip = wish.description && wish.description.length > 80
 
   const handleFormSubmit = () => {
-    setCurrentModal(null)
-  }
-
-  const handleDeleteConfirm = () => {
     setCurrentModal(null)
   }
 
@@ -184,8 +169,7 @@ export function WishCardStandard({
             if (isOpen) setCurrentModal(MODALS.DELETE)
             else setCurrentModal(null)
           }}
-          onConfirm={handleDeleteConfirm}
-          wishTitle={wish.title}
+          wish={wish}
         />
       )}
     </>

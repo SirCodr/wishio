@@ -99,3 +99,33 @@ export async function updateWish(prevState: WishActionState, data: FormData) {
     }
   }
 }
+
+export async function deleteWish(id: string) {
+  const deleteSchema = z.string().min(1, 'El ID es obligatorio')
+
+  try {
+    const parsedData = deleteSchema.safeParse(id)
+
+    if (!parsedData.success) {
+      return {
+        success: false,
+        error: parsedData.error.flatten().fieldErrors,
+        id
+      }
+    }
+
+    const supabase = await createServerClient()
+
+    await supabase.from('wishes').delete().eq('id', parsedData.data)
+
+    revalidatePath('/wishes')
+    return { success: true, error: {}, id }
+  } catch (error) {
+    console.log('Error on delete record action', error)
+    return {
+      success: false,
+      error: { title: ['Error al eliminar el deseo'] },
+      id
+    }
+  }
+}
