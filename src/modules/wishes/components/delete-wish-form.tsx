@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Tables } from '@/lib/supabase/database.types'
-import { useActionState, useEffect } from 'react'
+import { useActionState } from 'react'
 
 interface DeleteWishDialogProps {
   wish: Tables<'wishes'>
@@ -25,7 +25,7 @@ export function DeleteWishDialog({
   open,
   onOpenChange
 }: DeleteWishDialogProps) {
-  const [_, formAction, isPending] = useActionState(
+  const [, formAction, isPending] = useActionState(
     async (_: unknown, payload: string) => await deleteWish(payload),
     {
       success: false,
@@ -44,7 +44,7 @@ export function DeleteWishDialog({
             <AlertDialogDescription className='pb-3'>
               Estás a punto de eliminar{' '}
               <span className='font-semibold text-foreground'>
-                "{wish.title}"
+                {wish.title}
               </span>
               . Esta acción no se puede deshacer.
             </AlertDialogDescription>
