@@ -1,4 +1,5 @@
 export type WishFormPayload = {
+  id?: string
   title: string
   url: string
   isFavorite: boolean

@@ -26,6 +26,7 @@ import {
 import { useState } from 'react'
 import WishForm from './wish-form'
 import { DeleteWishDialog } from './delete-wish-form'
+import { Tables } from '@/lib/supabase/database.types'
 
 const MODALS = {
   EDIT: 'edit',
@@ -33,19 +34,13 @@ const MODALS = {
 } as const
 
 interface WishCardStandardProps {
-  id: string
-  title: string
-  url: string
-  description?: string
+  wish: Tables<'wishes'>
   onToggleFavorite?: () => void
   isFavorite?: boolean
 }
 
 export function WishCardStandard({
-  id,
-  title,
-  url,
-  description,
+  wish,
   onToggleFavorite,
   isFavorite = false
 }: WishCardStandardProps) {
@@ -60,7 +55,7 @@ export function WishCardStandard({
     }
   }
 
-  const needsTooltip = description && description.length > 80
+  const needsTooltip = wish.description && wish.description.length > 80
 
   const handleFormSubmit = () => {
     setCurrentModal(null)
@@ -77,12 +72,12 @@ export function WishCardStandard({
           <div className='flex items-start justify-between gap-3'>
             <div className='flex-1 min-w-0'>
               <h3 className='font-semibold text-base text-foreground line-clamp-2 group-hover:text-primary transition-colors leading-tight'>
-                {title}
+                {wish.title}
               </h3>
               <div className='flex items-center gap-2 mt-2'>
                 <Globe className='h-3.5 w-3.5 text-muted-foreground' />
                 <Badge variant='outline' className='text-xs font-medium'>
-                  {getDomain(url)}
+                  {getDomain(wish.url)}
                 </Badge>
               </div>
             </div>
@@ -135,23 +130,23 @@ export function WishCardStandard({
         </CardHeader>
         <CardContent className='pt-0'>
           <div className='h-12 mb-4 flex items-start'>
-            {description ? (
+            {wish.description ? (
               needsTooltip ? (
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <p className='text-sm text-muted-foreground leading-relaxed truncate cursor-help'>
-                        {description}
+                        {wish.description}
                       </p>
                     </TooltipTrigger>
                     <TooltipContent className='max-w-xs'>
-                      <p className='text-sm'>{description}</p>
+                      <p className='text-sm'>{wish.description}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               ) : (
                 <p className='text-sm text-muted-foreground leading-relaxed line-clamp-2'>
-                  {description}
+                  {wish.description}
                 </p>
               )
             ) : (
@@ -162,7 +157,7 @@ export function WishCardStandard({
             variant='secondary'
             size='sm'
             className='w-full transition-all'
-            onClick={() => window.open(url, '_blank')}
+            onClick={() => window.open(wish.url, '_blank')}
           >
             <ExternalLink className='h-4 w-4 mr-2' />
             Ver sitio
@@ -171,14 +166,14 @@ export function WishCardStandard({
       </Card>
       {currentModal === MODALS.EDIT && (
         <WishForm
-          key={MODALS.EDIT + id}
+          key={MODALS.EDIT + wish.id}
           isOpen={true}
           setOpen={(isOpen: boolean) => {
             if (isOpen) setCurrentModal(MODALS.EDIT)
             else setCurrentModal(null)
           }}
           onSubmit={handleFormSubmit}
-          // initialData={{ title, url, description }}
+          wish={wish}
         />
       )}
 
@@ -190,7 +185,7 @@ export function WishCardStandard({
             else setCurrentModal(null)
           }}
           onConfirm={handleDeleteConfirm}
-          wishTitle={title}
+          wishTitle={wish.title}
         />
       )}
     </>

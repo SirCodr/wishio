@@ -51,3 +51,51 @@ export async function createWish(prevState: WishActionState, data: FormData) {
     }
   }
 }
+
+export async function updateWish(prevState: WishActionState, data: FormData) {
+  const updateSchema: z.ZodType<WishFormPayload> = z.object({
+    id: z.string().min(1, 'El ID es obligatorio'),
+    title: z.string().min(1, 'El título es obligatorio'),
+    url: z.string().url('La URL no es válida'),
+    isFavorite: z.coerce.boolean(),
+    description: z.string().optional()
+  })
+  const values = Object.fromEntries(data.entries()) as Record<
+    keyof WishFormPayload,
+    string
+  >
+
+  try {
+    const parsedData = updateSchema.safeParse(values)
+
+    if (!parsedData.success) {
+      return {
+        success: false,
+        error: parsedData.error.flatten().fieldErrors,
+        values
+      }
+    }
+
+    const supabase = await createServerClient()
+
+    await supabase
+      .from('wishes')
+      .update({
+        title: parsedData.data.title,
+        url: parsedData.data.url,
+        isFavorite: parsedData.data.isFavorite,
+        description: parsedData.data.description
+      })
+      .eq('id', parsedData.data.id)
+
+    revalidatePath('/wishes')
+    return { success: true, error: {}, values }
+  } catch (error) {
+    console.log('Error on update record action', error)
+    return {
+      success: false,
+      error: { title: ['Error al actualizar el deseo'] },
+      values
+    }
+  }
+}

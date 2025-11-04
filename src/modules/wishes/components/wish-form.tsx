@@ -15,28 +15,31 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { useActionState, useEffect } from 'react'
 import { WishActionState } from '../types/wish'
-import { createWish } from '../../../app/(protected)/wishes/actions'
+import { createWish, updateWish } from '../../../app/(protected)/wishes/actions'
+import { Tables } from '@/lib/supabase/database.types'
 
 type Props = {
   isOpen: boolean
   setOpen: (open: boolean) => void
+  wish?: Tables<'wishes'>
   onSubmit?: () => void
 }
 
-export default function WishForm({ isOpen, setOpen, onSubmit }: Props) {
+export default function WishForm({ isOpen, setOpen, wish, onSubmit }: Props) {
   const initialState: WishActionState = {
     success: false,
     error: {},
     values: {
-      title: '',
-      url: '',
-      isFavorite: 'false',
-      description: ''
+      id: wish?.id || '',
+      title: wish?.title || '',
+      url: wish?.url || '',
+      isFavorite: `${wish?.isFavorite}` || 'false',
+      description: wish?.description || ''
     }
   }
 
   const [state, formAction, isPending] = useActionState(
-    createWish,
+    wish ? updateWish : createWish,
     initialState
   )
 
@@ -50,12 +53,17 @@ export default function WishForm({ isOpen, setOpen, onSubmit }: Props) {
     <Dialog open={isOpen} onOpenChange={setOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Agrega un deseo</DialogTitle>
+          <DialogTitle>
+            {wish ? 'Editar Deseo' : 'Agregar Nuevo Deseo'}
+          </DialogTitle>
           <DialogDescription>
-            Llena el formulario para agregar un nuevo deseo
+            {wish
+              ? 'Modifica los detalles de tu deseo a continuación.'
+              : 'Completa el formulario para agregar un nuevo deseo.'}
           </DialogDescription>
         </DialogHeader>
         <form className='grid gap-4' action={formAction}>
+          <input type='hidden' name='id' value={wish?.id} />
           <div className='grid gap-3'>
             <Label htmlFor='title' className='label-required'>
               Título
