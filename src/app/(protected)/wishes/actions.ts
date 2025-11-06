@@ -5,6 +5,7 @@ import { auth } from '@clerk/nextjs/server'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { WishActionState, WishFormPayload } from '@/modules/wishes/types/wish'
+import { BASE_PATH } from '@/constants/paths'
 
 export async function createWish(prevState: WishActionState, data: FormData) {
   const postCreationSchema: z.ZodType<WishFormPayload> = z.object({
@@ -29,14 +30,27 @@ export async function createWish(prevState: WishActionState, data: FormData) {
       }
     }
 
-    const { userId } = await auth()
+    const { userId, getToken } = await auth()
+    const token = await getToken()
     const supabase = await createServerClient()
+
+    const targetResponse = await fetch(
+      `${BASE_PATH}/api/metascraper?targetUrl=` + parsedData.data.url,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    )
+    const imageUrl: { image: string } = await targetResponse.json()
 
     await supabase.from('wishes').insert({
       title: parsedData.data.title,
       url: parsedData.data.url,
-      isFavorite: parsedData.data.isFavorite,
+      is_favorite: parsedData.data.isFavorite,
       description: parsedData.data.description,
+      image_url: imageUrl.image,
       user_id: userId
     })
 
