@@ -17,7 +17,11 @@ export async function GET(request: Request) {
       )
     }
 
-    const { body: html, url } = await got(targetUrl)
+    const { body: html, url } = await got(targetUrl, {
+      timeout: {
+        response: 5000
+      }
+    })
     const metadata = await metascraper({ html, url })
 
     return NextResponse.json(metadata)
