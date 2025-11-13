@@ -2,7 +2,14 @@
 
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { ExternalLink, Globe, MoreVertical, Pencil, Trash2 } from 'lucide-react'
+import {
+  Calendar,
+  ExternalLink,
+  Globe,
+  MoreVertical,
+  Pencil,
+  Trash2
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Tooltip,
@@ -20,6 +27,8 @@ import { useState } from 'react'
 import WishForm from './wish-form'
 import { DeleteWishDialog } from './delete-wish-form'
 import { Tables } from '@/lib/supabase/database.types'
+import WishCardImagePlaceHolder from './wish-card-image-place-holder'
+import { formatDateToString } from '@/lib/dateFormat'
 
 const MODALS = {
   EDIT: 'edit',
@@ -33,6 +42,7 @@ interface WishCardStandardProps {
 }
 
 export function WishCardStandard({ wish }: WishCardStandardProps) {
+  const { title, url, description, image_url, created_at } = wish
   const [currentModal, setCurrentModal] = useState<
     (typeof MODALS)[keyof typeof MODALS] | null
   >(null)
@@ -44,110 +54,115 @@ export function WishCardStandard({ wish }: WishCardStandardProps) {
     }
   }
 
-  const needsTooltip = wish.description && wish.description.length > 80
-
   const handleFormSubmit = () => {
     setCurrentModal(null)
   }
 
   return (
     <>
-      <Card className='group hover:shadow-lg transition-all duration-300 border-border/50 hover:border-primary/20 hover:-translate-y-1 overflow-hidden'>
-        <CardHeader className='pb-3'>
-          <div className='flex items-start justify-between gap-3'>
-            <div className='flex-1 min-w-0'>
-              <h3 className='font-semibold text-base text-foreground line-clamp-2 group-hover:text-primary transition-colors leading-tight'>
-                {wish.title}
-              </h3>
-              <div className='flex items-center gap-2 mt-2'>
-                <Globe className='h-3.5 w-3.5 text-muted-foreground' />
-                <Badge variant='outline' className='text-xs font-medium'>
-                  {getDomain(wish.url)}
-                </Badge>
+      <Card className='group hover:shadow-lg transition-all duration-300 border-border/50 hover:border-primary/20 overflow-hidden relative'>
+        <div className='flex flex-col md:flex-row gap-4 p-4'>
+          <div className='relative w-full md:w-32 h-48 md:h-32 shrink-0 bg-muted rounded-lg overflow-hidden'>
+            {image_url ? (
+              <img
+                src={image_url}
+                alt={title}
+                className='w-full h-full object-cover'
+                loading='lazy'
+              />
+            ) : (
+              <WishCardImagePlaceHolder title={title} />
+            )}
+          </div>
+
+          <div className='flex-1 min-w-0 flex flex-col'>
+            <div className='flex items-start justify-between gap-2 mb-2'>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <h3 className='font-semibold text-base text-foreground line-clamp-2 group-hover:text-primary transition-colors leading-tight flex-1 cursor-default capitalize'>
+                      {title}
+                    </h3>
+                  </TooltipTrigger>
+                  {title.length > 50 && (
+                    <TooltipContent className='max-w-xs'>
+                      <p className='text-sm'>{title}</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
+
+              <div className='flex items-center gap-1 shrink-0'>
+                <Button
+                  variant='ghost'
+                  size='sm'
+                  className='h-8 w-8 p-0 text-primary hover:bg-primary/10'
+                  title='Ver producto'
+                  onClick={() => window.open(url, '_blank')}
+                >
+                  <ExternalLink className='h-4 w-4' />
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant='ghost' size='sm' className='h-8 w-8 p-0'>
+                      <MoreVertical className='h-4 w-4 text-muted-foreground' />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align='end' className='w-40'>
+                    <DropdownMenuItem
+                      onClick={() => setCurrentModal(MODALS.EDIT)}
+                      className='cursor-pointer'
+                    >
+                      <Pencil className='h-4 w-4 mr-2' />
+                      Editar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setCurrentModal(MODALS.DELETE)}
+                      className='cursor-pointer text-destructive focus:text-destructive'
+                    >
+                      <Trash2 className='h-4 w-4 mr-2' />
+                      Eliminar
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
-            <div className='flex items-center gap-1 shrink-0'>
-              {/*
-              //TODO: Re-add favorite functionality
-             <Button
-              variant='ghost'
-              size='sm'
-              className='h-9 w-9 p-0 shrink-0 hover:bg-transparent group/heart'
-              onClick={onToggleFavorite}
-            >
-              <Heart
-                className={`h-4 w-4 transition-all duration-200 ${
-                  isFavorite
-                    ? 'fill-red-500 text-red-500'
-                    : 'text-muted-foreground group-hover/heart:text-red-400 group-hover/heart:scale-105'
-                }`}
-              />
-            </Button> */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    className='h-9 w-9 p-0 hover:bg-transparent'
-                  >
-                    <MoreVertical className='h-4 w-4 text-muted-foreground' />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align='end' className='w-40'>
-                  <DropdownMenuItem
-                    onClick={() => setCurrentModal(MODALS.EDIT)}
-                    className='cursor-pointer'
-                  >
-                    <Pencil className='h-4 w-4 mr-2' />
-                    Editar
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => setCurrentModal(MODALS.DELETE)}
-                    className='cursor-pointer text-destructive focus:text-destructive'
-                  >
-                    <Trash2 className='h-4 w-4 mr-2' />
-                    Eliminar
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+
+            <div className='flex items-center gap-2 mb-2 flex-wrap'>
+              <Badge variant='outline' className='text-xs'>
+                {getDomain(url)}
+              </Badge>
             </div>
-          </div>
-        </CardHeader>
-        <CardContent className='pt-0'>
-          <div className='h-12 mb-4 flex items-start'>
-            {wish.description ? (
-              needsTooltip ? (
+
+            <div className='h-10 mb-2'>
+              {description && (
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <p className='text-sm text-muted-foreground leading-relaxed truncate cursor-help'>
-                        {wish.description}
+                      <p className='text-sm text-muted-foreground leading-relaxed line-clamp-2 cursor-default'>
+                        {description}
                       </p>
                     </TooltipTrigger>
-                    <TooltipContent className='max-w-xs'>
-                      <p className='text-sm'>{wish.description}</p>
-                    </TooltipContent>
+                    {description.length > 80 && (
+                      <TooltipContent className='max-w-xs'>
+                        <p className='text-sm'>{description}</p>
+                      </TooltipContent>
+                    )}
                   </Tooltip>
                 </TooltipProvider>
-              ) : (
-                <p className='text-sm text-muted-foreground leading-relaxed line-clamp-2'>
-                  {wish.description}
-                </p>
-              )
-            ) : (
-              <div className='h-full' />
-            )}
+              )}
+            </div>
+
+            <div className='flex items-center gap-3 mt-auto'>
+              <div className='flex items-center gap-1 text-muted-foreground'>
+                <Calendar className='h-3.5 w-3.5' />
+                <span className='text-xs capitalize'>
+                  {formatDateToString(created_at)}
+                </span>
+              </div>
+            </div>
           </div>
-          <Button
-            variant='secondary'
-            size='sm'
-            className='w-full transition-all'
-            onClick={() => window.open(wish.url, '_blank')}
-          >
-            <ExternalLink className='h-4 w-4 mr-2' />
-            Ver sitio
-          </Button>
-        </CardContent>
+        </div>
       </Card>
       {currentModal === MODALS.EDIT && (
         <WishForm

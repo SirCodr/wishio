@@ -19,7 +19,8 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
-          isFavorite: boolean
+          image_url: string | null
+          is_favorite: boolean
           title: string
           updated_at: string | null
           url: string
@@ -29,7 +30,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
-          isFavorite?: boolean
+          image_url?: string | null
+          is_favorite?: boolean
           title: string
           updated_at?: string | null
           url: string
@@ -39,7 +41,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
-          isFavorite?: boolean
+          image_url?: string | null
+          is_favorite?: boolean
           title?: string
           updated_at?: string | null
           url?: string
@@ -52,10 +55,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      requesting_user_id: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      requesting_user_id: { Args: never; Returns: string }
     }
     Enums: {
       [_ in never]: never
