@@ -6,7 +6,7 @@ export default function WishesHeaderLoader() {
   return (
     <div className='flex items-center justify-between mb-6'>
       <div className='flex items-center gap-4'>
-        <h2 className='text-xl font-semibold text-foreground'>Mis Wishes</h2>
+        <h2 className='text-xl font-semibold text-foreground'>Mis Deseos</h2>
         <Badge variant='secondary' className='text-sm'>
           <Loader className='h-4 w-4 animate-spin' />
         </Badge>
@@ -18,7 +18,7 @@ export default function WishesHeaderLoader() {
       </div>
       <Button className='bg-primary hover:bg-primary/90 text-primary-foreground shadow-md'>
         <Plus className='h-4 w-4 mr-2' />
-        Agregar wish
+        Agregar Deseo
       </Button>
     </div>
   )

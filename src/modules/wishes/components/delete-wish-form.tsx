@@ -40,7 +40,7 @@ export function DeleteWishDialog({
         <form action={() => formAction(wish.id)}>
           <input type='hidden' name='id' value={wish.id} />
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar este wish?</AlertDialogTitle>
+            <AlertDialogTitle>¿Eliminar este Deseo?</AlertDialogTitle>
             <AlertDialogDescription className='pb-3'>
               Estás a punto de eliminar{' '}
               <span className='font-semibold text-foreground'>
