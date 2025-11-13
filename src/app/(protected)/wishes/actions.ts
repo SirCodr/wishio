@@ -11,7 +11,7 @@ export async function createWish(prevState: WishActionState, data: FormData) {
   const postCreationSchema: z.ZodType<WishFormPayload> = z.object({
     title: z.string().min(1, 'El título es obligatorio'),
     url: z.string().url('La URL no es válida'),
-    isFavorite: z.coerce.boolean(),
+    is_favorite: z.coerce.boolean(),
     description: z.string().optional()
   })
   const values = Object.fromEntries(data.entries()) as Record<
@@ -48,7 +48,7 @@ export async function createWish(prevState: WishActionState, data: FormData) {
     await supabase.from('wishes').insert({
       title: parsedData.data.title,
       url: parsedData.data.url,
-      is_favorite: parsedData.data.isFavorite,
+      is_favorite: parsedData.data.is_favorite,
       description: parsedData.data.description,
       image_url: imageUrl.image,
       user_id: userId
@@ -71,7 +71,7 @@ export async function updateWish(prevState: WishActionState, data: FormData) {
     id: z.string().min(1, 'El ID es obligatorio'),
     title: z.string().min(1, 'El título es obligatorio'),
     url: z.string().url('La URL no es válida'),
-    isFavorite: z.coerce.boolean(),
+    is_favorite: z.coerce.boolean(),
     description: z.string().optional()
   })
   const values = Object.fromEntries(data.entries()) as Record<
@@ -97,7 +97,7 @@ export async function updateWish(prevState: WishActionState, data: FormData) {
       .update({
         title: parsedData.data.title,
         url: parsedData.data.url,
-        isFavorite: parsedData.data.isFavorite,
+        isFavorite: parsedData.data.is_favorite,
         description: parsedData.data.description
       })
       .eq('id', parsedData.data.id)

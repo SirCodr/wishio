@@ -33,7 +33,7 @@ export default function WishForm({ isOpen, setOpen, wish, onSubmit }: Props) {
       id: wish?.id || '',
       title: wish?.title || '',
       url: wish?.url || '',
-      isFavorite: `${wish?.isFavorite}` || 'false',
+      is_favorite: `${wish?.is_favorite}` || 'false',
       description: wish?.description || ''
     }
   }
