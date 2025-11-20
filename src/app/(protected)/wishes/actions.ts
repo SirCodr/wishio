@@ -43,7 +43,7 @@ export async function createWish(prevState: WishActionState, data: FormData) {
         }
       }
     )
-    const imageUrl = await targetResponse.json()
+    const { imageUrl } = await targetResponse.json()
 
     await supabase.from('wishes').insert({
       title: parsedData.data.title,
