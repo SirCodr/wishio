@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { chromium, Page } from 'playwright'
 
+type Extractor = (page: Page) => Promise<string | null>
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const targetUrl = searchParams.get('targetUrl')
@@ -12,14 +14,116 @@ export async function GET(request: Request) {
     )
   }
 
-  const browser = await chromium.launch()
+  const browser = await chromium.launch({ headless: false })
   const page = await browser.newPage()
   await page.goto(targetUrl)
 
-  const visibleImage = await extractVisibleDomImage(page)
+  const visibleImage = await extractProductImage(page)
 
   await browser.close()
   return NextResponse.json({ imageUrl: visibleImage || null })
+}
+
+export async function extractProductImage(page: Page): Promise<string | null> {
+  const extractors: Extractor[] = [
+    extractOgImage,
+    extractTwitterImage,
+    extractJsonLdImage,
+    extractMetaThumbnail,
+    extractVisibleDomImage // Fallback más sólido
+  ]
+
+  for (const extractor of extractors) {
+    try {
+      const result = await extractor(page)
+      if (result) return result
+    } catch (err) {
+      console.warn(`[Extractor error] ${extractor.name}`, err)
+    }
+  }
+
+  return null
+}
+
+/* ────────────────────────────────────────────────────────────────────── */
+/* 🔵 Extractor 1: og:image */
+/* ────────────────────────────────────────────────────────────────────── */
+async function extractOgImage(page: Page): Promise<string | null> {
+  return page.evaluate(() => {
+    return (
+      document
+        .querySelector('meta[property="og:image"]')
+        ?.getAttribute('content') ||
+      document
+        .querySelector('meta[name="og:image"]')
+        ?.getAttribute('content') ||
+      null
+    )
+  })
+}
+
+/* ────────────────────────────────────────────────────────────────────── */
+/* 🔵 Extractor 2: twitter:image */
+/* ────────────────────────────────────────────────────────────────────── */
+async function extractTwitterImage(page: Page): Promise<string | null> {
+  return page.evaluate(() => {
+    return (
+      document
+        .querySelector('meta[name="twitter:image"]')
+        ?.getAttribute('content') ||
+      document
+        .querySelector('meta[name="twitter:image:src"]')
+        ?.getAttribute('content') ||
+      null
+    )
+  })
+}
+
+/* ────────────────────────────────────────────────────────────────────── */
+/* 🔵 Extractor 3: JSON-LD */
+/* ────────────────────────────────────────────────────────────────────── */
+async function extractJsonLdImage(page: Page): Promise<string | null> {
+  return page.evaluate(() => {
+    const scripts = Array.from(
+      document.querySelectorAll('script[type="application/ld+json"]')
+    )
+
+    for (const script of scripts) {
+      try {
+        const json = JSON.parse(script.textContent || '{}')
+
+        const candidates = [
+          json?.image,
+          json?.image?.url,
+          json?.image?.[0],
+          json?.imageUrl,
+          json?.photo
+        ].filter(Boolean)
+
+        if (candidates.length) {
+          const img = candidates.find((v) => typeof v === 'string')
+          if (img) return img
+        }
+      } catch {}
+    }
+
+    return null
+  })
+}
+
+/* ────────────────────────────────────────────────────────────────────── */
+/* 🔵 Extractor 4: Otros metatags comunes */
+/* ────────────────────────────────────────────────────────────────────── */
+async function extractMetaThumbnail(page: Page): Promise<string | null> {
+  return page.evaluate(() => {
+    return (
+      document
+        .querySelector('meta[name="thumbnail"]')
+        ?.getAttribute('content') ||
+      document.querySelector('link[rel="image_src"]')?.getAttribute('href') ||
+      null
+    )
+  })
 }
 
 async function extractVisibleDomImage(page: Page): Promise<string | null> {
