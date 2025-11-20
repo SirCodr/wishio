@@ -1,35 +1,62 @@
-import got from 'got'
-import createMetascraper from 'metascraper'
-import metascraperImage from 'metascraper-image'
 import { NextResponse } from 'next/server'
-
-const metascraper = createMetascraper([metascraperImage()])
+import { chromium, Page } from 'playwright'
 
 export async function GET(request: Request) {
-  try {
-    const { searchParams } = new URL(request.url)
-    const targetUrl = searchParams.get('targetUrl')
+  const { searchParams } = new URL(request.url)
+  const targetUrl = searchParams.get('targetUrl')
 
-    if (!targetUrl) {
-      return NextResponse.json(
-        { error: 'targetUrl parameter is required' },
-        { status: 400 }
+  if (!targetUrl) {
+    return NextResponse.json(
+      { error: 'targetUrl parameter is required' },
+      { status: 400 }
+    )
+  }
+
+  const browser = await chromium.launch()
+  const page = await browser.newPage()
+  await page.goto(targetUrl)
+
+  const visibleImage = await extractVisibleDomImage(page)
+
+  await browser.close()
+  return NextResponse.json({ imageUrl: visibleImage || null })
+}
+
+async function extractVisibleDomImage(page: Page): Promise<string | null> {
+  return page.evaluate(() => {
+    const imgs = Array.from(document.querySelectorAll('img'))
+
+    const isVisible = (el: HTMLImageElement) => {
+      const style = window.getComputedStyle(el)
+      const rect = el.getBoundingClientRect()
+
+      return (
+        style.display !== 'none' &&
+        style.visibility !== 'hidden' &&
+        Number(style.opacity) > 0.1 &&
+        rect.width > 60 &&
+        rect.height > 60 &&
+        rect.bottom > 0 &&
+        rect.right > 0 &&
+        rect.top < window.innerHeight &&
+        rect.left < window.innerWidth
       )
     }
 
-    const { body: html, url } = await got(targetUrl, {
-      timeout: {
-        response: 5000
-      }
-    })
-    const metadata = await metascraper({ html, url })
+    const isRealImage = (src: string) =>
+      src &&
+      /\.(jpg|jpeg|png|webp|avif)(\?|$)/i.test(src) &&
+      !src.includes('sprite') &&
+      !src.includes('icon') &&
+      !src.includes('tracking') &&
+      !src.includes('csi') &&
+      !src.startsWith('data:')
 
-    return NextResponse.json(metadata)
-  } catch (error) {
-    console.error('Error scraping metadata:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch metadata' },
-      { status: 500 }
-    )
-  }
+    const candidates = imgs
+      .filter((img) => isVisible(img))
+      .map((img) => img.src || img.dataset.src || '')
+      .filter((src) => isRealImage(src))
+
+    return candidates.length ? candidates[0] : null
+  })
 }
