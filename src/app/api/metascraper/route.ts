@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server'
 import { chromium, type Page } from 'playwright-core'
+import chromiumPkg from '@sparticuz/chromium'
 
 type Extractor = (page: Page) => Promise<string | null>
+
+export const dynamic = 'force-dynamic'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -14,16 +17,41 @@ export async function GET(request: Request) {
     )
   }
 
-  const browser = await chromium.launch({ headless: false })
-  const page = await browser.newPage()
-  await page.goto(targetUrl)
+  let browser
+  try {
+    let executablePath: string | undefined
 
-  const visibleImage = await extractProductImage(page)
+    // En local (Windows/Mac) usamos el Chromium oficial de Playwright
+    // En Vercel (Linux serverless) usamos @sparticuz/chromium
+    if (process.env.VERCEL !== '1') {
+      // Estamos en desarrollo local → usamos el browser oficial
+      // (primera vez tardará 30 segundos en descargar, luego es instantáneo)
+      await import('playwright') // fuerza la instalación de browsers si no existen
+    } else {
+      // Estamos en Vercel → usamos el ligero de @sparticuz
+      executablePath = await chromiumPkg.executablePath()
+    }
 
-  await browser.close()
-  return NextResponse.json({ imageUrl: visibleImage || null })
+    browser = await chromium.launch({
+      headless: process.env.NODE_ENV === 'production',
+      executablePath, // será undefined en local → Playwright usa el suyo por defecto
+      args: process.env.VERCEL === '1' ? chromiumPkg.args : undefined
+    })
+
+    const page = await browser.newPage()
+    await page.goto(targetUrl)
+
+    const visibleImage = await extractProductImage(page)
+
+    await browser.close()
+    return NextResponse.json({ imageUrl: visibleImage || null })
+  } catch (error: any) {
+    console.error(error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  } finally {
+    browser?.close()
+  }
 }
-
 export async function extractProductImage(page: Page): Promise<string | null> {
   const extractors: Extractor[] = [
     extractOgImage,
