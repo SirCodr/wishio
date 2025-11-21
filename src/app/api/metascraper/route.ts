@@ -44,22 +44,24 @@ export async function GET(request: Request) {
 
 async function launchBrowser(): Promise<Browser> {
   const isVercel = process.env.VERCEL === '1'
-  const isDev = process.env.NODE_ENV !== 'production'
 
-  if (!isVercel) {
-    // Local (Windows/Mac) → usa Playwright completo (más rápido y estable)
+  let executablePath: string | undefined
+
+  if (isVercel) {
+    // URL oficial del maintainer (actualizada frecuentemente)
+    const chromiumPackUrl =
+      'https://github.com/Sparticuz/chromium/releases/download/v130.0.0/chromium-v130.0.0-pack.tar'
+
+    executablePath = await chromiumPkg.executablePath(chromiumPackUrl)
+  } else {
+    // Local: usa el Chromium oficial de Playwright
     await import('playwright')
   }
 
-  const executablePath = isVercel
-    ? await chromiumPkg.executablePath('/opt/chromium')
-    : undefined
-  const args = isVercel ? chromiumPkg.args : ['--no-sandbox']
-
-  return await playwright.launch({
-    headless: isVercel ? true : !isDev, // Solo abre ventana en dev local
+  return playwright.launch({
+    headless: true,
     executablePath,
-    args
+    args: isVercel ? chromiumPkg.args : ['--no-sandbox']
   })
 }
 
