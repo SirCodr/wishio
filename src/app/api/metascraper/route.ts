@@ -5,7 +5,7 @@ import {
   chromium as playwright,
   type Page
 } from 'playwright-core'
-import chromiumPkg from '@sparticuz/chromium'
+import chromiumPkg from '@sparticuz/chromium-min'
 
 type Extractor = (page: Page) => Promise<string | null>
 
