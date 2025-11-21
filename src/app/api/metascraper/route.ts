@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server'
-import { Browser, BrowserContext, chromium, type Page } from 'playwright-core'
+import {
+  Browser,
+  BrowserContext,
+  chromium as playwright,
+  type Page
+} from 'playwright-core'
 import chromiumPkg from '@sparticuz/chromium'
 
 type Extractor = (page: Page) => Promise<string | null>
@@ -18,10 +23,9 @@ export async function GET(request: Request) {
   }
 
   let browser
-  let context
   try {
     browser = await launchBrowser()
-    context = await createStealthContext(browser)
+    const context = await createStealthContext(browser)
     await applyAntiDetectionScripts(context)
 
     const page = await context.newPage()
@@ -34,7 +38,6 @@ export async function GET(request: Request) {
     console.error(error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   } finally {
-    context?.close()
     browser?.close()
   }
 }
@@ -49,11 +52,11 @@ async function launchBrowser(): Promise<Browser> {
   }
 
   const executablePath = isVercel
-    ? await chromiumPkg.executablePath()
+    ? await chromiumPkg.executablePath('/opt/chromium')
     : undefined
   const args = isVercel ? chromiumPkg.args : ['--no-sandbox']
 
-  return await chromium.launch({
+  return await playwright.launch({
     headless: isVercel ? true : !isDev, // Solo abre ventana en dev local
     executablePath,
     args
