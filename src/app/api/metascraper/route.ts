@@ -106,7 +106,7 @@ async function applyAntiDetectionScripts(
   })
 }
 
-export async function extractProductImage(page: Page): Promise<string | null> {
+async function extractProductImage(page: Page): Promise<string | null> {
   const extractors: Extractor[] = [
     extractOgImage,
     extractTwitterImage,
