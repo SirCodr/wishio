@@ -18,9 +18,10 @@ export async function GET(request: Request) {
   }
 
   let browser
+  let context
   try {
     browser = await launchBrowser()
-    const context = await createStealthContext(browser)
+    context = await createStealthContext(browser)
     await applyAntiDetectionScripts(context)
 
     const page = await context.newPage()
@@ -33,6 +34,7 @@ export async function GET(request: Request) {
     console.error(error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   } finally {
+    context?.close()
     browser?.close()
   }
 }
