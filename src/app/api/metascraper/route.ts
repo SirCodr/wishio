@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { chromium, Page } from 'playwright'
+import { chromium, type Page } from 'playwright-core'
 
 type Extractor = (page: Page) => Promise<string | null>
 
