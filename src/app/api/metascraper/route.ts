@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { chromium, type Page } from 'playwright-core'
+import { Browser, BrowserContext, chromium, type Page } from 'playwright-core'
 import chromiumPkg from '@sparticuz/chromium'
 
 type Extractor = (page: Page) => Promise<string | null>
@@ -19,31 +19,15 @@ export async function GET(request: Request) {
 
   let browser
   try {
-    let executablePath: string | undefined
+    browser = await launchBrowser()
+    const context = await createStealthContext(browser)
+    await applyAntiDetectionScripts(context)
 
-    // En local (Windows/Mac) usamos el Chromium oficial de Playwright
-    // En Vercel (Linux serverless) usamos @sparticuz/chromium
-    if (process.env.VERCEL !== '1') {
-      // Estamos en desarrollo local → usamos el browser oficial
-      // (primera vez tardará 30 segundos en descargar, luego es instantáneo)
-      await import('playwright') // fuerza la instalación de browsers si no existen
-    } else {
-      // Estamos en Vercel → usamos el ligero de @sparticuz
-      executablePath = await chromiumPkg.executablePath()
-    }
-
-    browser = await chromium.launch({
-      headless: process.env.NODE_ENV === 'production',
-      executablePath, // será undefined en local → Playwright usa el suyo por defecto
-      args: process.env.VERCEL === '1' ? chromiumPkg.args : undefined
-    })
-
-    const page = await browser.newPage()
+    const page = await context.newPage()
     await page.goto(targetUrl)
 
     const visibleImage = await extractProductImage(page)
 
-    await browser.close()
     return NextResponse.json({ imageUrl: visibleImage || null })
   } catch (error: any) {
     console.error(error)
@@ -52,6 +36,74 @@ export async function GET(request: Request) {
     browser?.close()
   }
 }
+
+async function launchBrowser(): Promise<Browser> {
+  const isVercel = process.env.VERCEL === '1'
+  const isDev = process.env.NODE_ENV !== 'production'
+
+  if (!isVercel) {
+    // Local (Windows/Mac) → usa Playwright completo (más rápido y estable)
+    await import('playwright')
+  }
+
+  const executablePath = isVercel
+    ? await chromiumPkg.executablePath()
+    : undefined
+  const args = isVercel ? chromiumPkg.args : ['--no-sandbox']
+
+  return await chromium.launch({
+    headless: isVercel ? true : !isDev, // Solo abre ventana en dev local
+    executablePath,
+    args
+  })
+}
+
+async function createStealthContext(browser: Browser): Promise<BrowserContext> {
+  return await browser.newContext({
+    userAgent:
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+    viewport: { width: 1920, height: 1080 },
+    locale: 'es-CO',
+    timezoneId: 'America/Bogota',
+    permissions: ['geolocation'],
+    geolocation: { latitude: 4.6097, longitude: -74.0817 },
+    extraHTTPHeaders: {
+      'Accept-Language': 'es-CO,es;q=0.9'
+    }
+  })
+}
+
+async function applyAntiDetectionScripts(
+  context: BrowserContext
+): Promise<void> {
+  await context.addInitScript(() => {
+    // Elimina la flag que delata a Playwright/Chromium headless
+    delete (navigator as any).__proto__.webdriver
+
+    // Fake plugins
+    Object.defineProperty(navigator, 'plugins', {
+      get: () => [
+        { name: 'Chrome PDF Plugin' },
+        { name: 'Chrome PDF Viewer' },
+        { name: 'Native Client' }
+      ]
+    })
+
+    // Fake languages
+    Object.defineProperty(navigator, 'languages', {
+      get: () => ['es-CO', 'es', 'en-US', 'en']
+    })
+
+    // Spoof WebGL (muy efectivo contra MercadoLibre, Amazon, etc.)
+    const getParameter = WebGLRenderingContext.prototype.getParameter
+    WebGLRenderingContext.prototype.getParameter = function (parameter: any) {
+      if (parameter === 37445) return 'Intel Inc.' // UNMASKED_VENDOR_WEBGL
+      if (parameter === 37446) return 'Intel Iris OpenGL Engine' // UNMASKED_RENDERER_WEBGL
+      return getParameter.call(this, parameter)
+    }
+  })
+}
+
 export async function extractProductImage(page: Page): Promise<string | null> {
   const extractors: Extractor[] = [
     extractOgImage,
@@ -73,9 +125,6 @@ export async function extractProductImage(page: Page): Promise<string | null> {
   return null
 }
 
-/* ────────────────────────────────────────────────────────────────────── */
-/* 🔵 Extractor 1: og:image */
-/* ────────────────────────────────────────────────────────────────────── */
 async function extractOgImage(page: Page): Promise<string | null> {
   return page.evaluate(() => {
     return (
@@ -90,9 +139,6 @@ async function extractOgImage(page: Page): Promise<string | null> {
   })
 }
 
-/* ────────────────────────────────────────────────────────────────────── */
-/* 🔵 Extractor 2: twitter:image */
-/* ────────────────────────────────────────────────────────────────────── */
 async function extractTwitterImage(page: Page): Promise<string | null> {
   return page.evaluate(() => {
     return (
@@ -107,9 +153,6 @@ async function extractTwitterImage(page: Page): Promise<string | null> {
   })
 }
 
-/* ────────────────────────────────────────────────────────────────────── */
-/* 🔵 Extractor 3: JSON-LD */
-/* ────────────────────────────────────────────────────────────────────── */
 async function extractJsonLdImage(page: Page): Promise<string | null> {
   return page.evaluate(() => {
     const scripts = Array.from(
@@ -139,9 +182,6 @@ async function extractJsonLdImage(page: Page): Promise<string | null> {
   })
 }
 
-/* ────────────────────────────────────────────────────────────────────── */
-/* 🔵 Extractor 4: Otros metatags comunes */
-/* ────────────────────────────────────────────────────────────────────── */
 async function extractMetaThumbnail(page: Page): Promise<string | null> {
   return page.evaluate(() => {
     return (
