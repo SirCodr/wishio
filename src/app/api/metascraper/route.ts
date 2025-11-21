@@ -59,7 +59,7 @@ async function launchBrowser(): Promise<Browser> {
   }
 
   return playwright.launch({
-    headless: true,
+    headless: false,
     executablePath,
     args: isVercel ? chromiumPkg.args : ['--no-sandbox']
   })
