@@ -114,7 +114,7 @@ async function tryMetascraperScrape(targetUrl: string): Promise<string | null> {
       html.match(
         /<meta\s+content="([^"]+O\.jpe?g[^"]*)"\s+property="og:image"/i
       )
-
+    console.log('[metascraper] ogMatch:', ogMatch)
     if (ogMatch && ogMatch[1]) {
       return ogMatch[1]
     }
