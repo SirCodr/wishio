@@ -6,11 +6,13 @@ import {
   type Page
 } from 'playwright-core'
 import chromiumPkg from '@sparticuz/chromium-min'
+import got from 'got'
+import createMetascraper from 'metascraper'
+import metascraperImage from 'metascraper-image'
 
 type Extractor = (page: Page) => Promise<string | null>
 
 export const dynamic = 'force-dynamic'
-
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const targetUrl = searchParams.get('targetUrl')
@@ -22,7 +24,26 @@ export async function GET(request: Request) {
     )
   }
 
-  let browser
+  try {
+    // 1) Try headless browser extraction (strongest, JS-rendered sites)
+    const scrapedImage = await tryPlaywrightScrape(targetUrl)
+    if (scrapedImage) return NextResponse.json({ imageUrl: scrapedImage })
+
+    // 2) Fallback to metascraper + got (fast, non-JS fallback)
+    const metascraped = await tryMetascraperScrape(targetUrl)
+    if (metascraped) return NextResponse.json({ imageUrl: metascraped })
+
+    // 3) Nothing found
+    return NextResponse.json({ imageUrl: null })
+  } catch (error: any) {
+    console.error(error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+}
+
+// --- Helper wrappers -------------------------------------------------
+async function tryPlaywrightScrape(targetUrl: string): Promise<string | null> {
+  let browser: Browser | undefined
   try {
     browser = await launchBrowser()
     const context = await createStealthContext(browser)
@@ -31,14 +52,31 @@ export async function GET(request: Request) {
     const page = await context.newPage()
     await page.goto(targetUrl)
 
-    const visibleImage = await extractProductImage(page)
-
-    return NextResponse.json({ imageUrl: visibleImage || null })
-  } catch (error: any) {
-    console.error(error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    const scrapedImage = await scrapProductImage(page)
+    return scrapedImage
+  } catch (err) {
+    console.warn('[tryPlaywrightScrape] error', err)
+    return null
   } finally {
-    browser?.close()
+    try {
+      await browser?.close()
+    } catch {}
+  }
+}
+
+async function tryMetascraperScrape(targetUrl: string): Promise<string | null> {
+  try {
+    const metascraper = createMetascraper([metascraperImage()])
+    const { body: html, url } = await got(targetUrl, {
+      timeout: {
+        response: 5000
+      }
+    })
+    const metadata = await metascraper({ html, url })
+    return (metadata?.image as string) || null
+  } catch (err) {
+    console.warn('[tryMetascraperScrape] error', err)
+    return null
   }
 }
 
@@ -111,7 +149,7 @@ async function applyAntiDetectionScripts(
   })
 }
 
-async function extractProductImage(page: Page): Promise<string | null> {
+async function scrapProductImage(page: Page): Promise<string | null> {
   const extractors: Extractor[] = [
     extractOgImage,
     extractTwitterImage,
