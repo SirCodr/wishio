@@ -30,8 +30,8 @@ export async function GET(request: Request) {
     if (scrapedImage) return NextResponse.json({ imageUrl: scrapedImage })
 
     // 2) Fallback to metascraper + got (fast, non-JS fallback)
-    // const metascraped = await tryMetascraperScrape(targetUrl)
-    // if (metascraped) return NextResponse.json({ imageUrl: metascraped })
+    const metascraped = await tryMetascraperScrape(targetUrl)
+    if (metascraped) return NextResponse.json({ imageUrl: metascraped })
 
     // 3) Nothing found
     return NextResponse.json({ imageUrl: null })
