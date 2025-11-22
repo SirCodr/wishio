@@ -26,8 +26,8 @@ export async function GET(request: Request) {
 
   try {
     // 1) Try headless browser extraction (strongest, JS-rendered sites)
-    const scrapedImage = await tryPlaywrightScrape(targetUrl)
-    if (scrapedImage) return NextResponse.json({ imageUrl: scrapedImage })
+    // const scrapedImage = await tryPlaywrightScrape(targetUrl)
+    // if (scrapedImage) return NextResponse.json({ imageUrl: scrapedImage })
 
     // 2) Fallback to metascraper + got (fast, non-JS fallback)
     const metascraped = await tryMetascraperScrape(targetUrl)
