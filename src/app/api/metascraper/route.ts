@@ -30,8 +30,8 @@ export async function GET(request: Request) {
     if (scrapedImage) return NextResponse.json({ imageUrl: scrapedImage })
 
     // 2) Fallback to metascraper + got (fast, non-JS fallback)
-    const metascraped = await tryMetascraperScrape(targetUrl)
-    if (metascraped) return NextResponse.json({ imageUrl: metascraped })
+    // const metascraped = await tryMetascraperScrape(targetUrl)
+    // if (metascraped) return NextResponse.json({ imageUrl: metascraped })
 
     // 3) Nothing found
     return NextResponse.json({ imageUrl: null })
@@ -85,16 +85,7 @@ async function launchBrowser(): Promise<Browser> {
 
   let executablePath: string | undefined
 
-  if (isVercel) {
-    // URL oficial del maintainer (actualizada frecuentemente)
-    const chromiumPackUrl =
-      'https://github.com/Sparticuz/chromium/releases/download/v130.0.0/chromium-v130.0.0-pack.tar'
-
-    executablePath = await chromiumPkg.executablePath(chromiumPackUrl)
-  } else {
-    // Local: usa el Chromium oficial de Playwright
-    await import('playwright')
-  }
+  await import('playwright')
 
   return playwright.launch({
     headless: true,
