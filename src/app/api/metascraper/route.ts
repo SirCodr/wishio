@@ -85,9 +85,14 @@ async function isValidImageUrl(
 }
 
 function decodeHtmlEntities(text: string): string {
-  const textarea = document.createElement('textarea')
-  textarea.innerHTML = text
-  return textarea.value
+  return text
+    .replace(/\\u003C/g, '<')
+    .replace(/\\u003E/g, '>')
+    .replace(/\\u0022/g, '"')
+    .replace(/\\u0027/g, "'")
+    .replace(/\\u0026/g, '&')
+    .replace(/\\u003D/g, '=')
+    .replace(/\\u002F/g, '/')
 }
 
 async function tryMetascraperScrape(targetUrl: string): Promise<string | null> {
