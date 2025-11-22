@@ -64,6 +64,26 @@ async function tryPlaywrightScrape(targetUrl: string): Promise<string | null> {
   }
 }
 
+async function isValidImageUrl(
+  url: string | null | undefined
+): Promise<boolean> {
+  if (!url) return false
+  if (url.trim() === '') return false
+  if (url.startsWith('data:')) return false // cualquier data: URI la descartamos
+  if (
+    url.includes('spacer.gif') ||
+    url.includes('transparent.gif') ||
+    url.includes('1x1.')
+  )
+    return false
+  if (
+    !/\.(jpg|jpeg|png|webp|avif|gif)(\?|#|$)/i.test(url) &&
+    !url.includes('mlstatic.com')
+  )
+    return false
+  return true
+}
+
 async function tryMetascraperScrape(targetUrl: string): Promise<string | null> {
   try {
     const metascraper = createMetascraper([metascraperImage()])
@@ -73,9 +93,50 @@ async function tryMetascraperScrape(targetUrl: string): Promise<string | null> {
       }
     })
     const metadata = await metascraper({ html, url })
-    return (metadata?.image as string) || null
-  } catch (err) {
-    console.warn('[tryMetascraperScrape] error', err)
+    let imageUrl = metadata.image as string | null
+
+    if (await isValidImageUrl(imageUrl)) {
+      return imageUrl
+    }
+
+    console.warn(
+      '[metascraper] Imagen inválida o placeholder, cayendo a fallback manual:',
+      imageUrl
+    )
+
+    // 2. Fallback manual: busca og:image con la imagen grande (termina en O.jpg = Original)
+    const ogMatch =
+      html.match(
+        /<meta\s+property="og:image"\s+content="([^"]+O\.jpe?g[^"]*)"/i
+      ) ||
+      html.match(
+        /<meta\s+content="([^"]+O\.jpe?g[^"]*)"\s+property="og:image"/i
+      )
+
+    if (ogMatch && ogMatch[1]) {
+      return ogMatch[1]
+    }
+
+    // 3. Fallback extra fuerte para MercadoLibre (busca en JSON interno o cualquier O.jpg grande)
+    const bigImageMatch =
+      html.match(/"secure_url":"([^"]+O\.jpe?g[^"]*)"/) ||
+      html.match(/https:\/\/http2\.mlstatic\.com\/[^"]+O\.jpe?g[^"\s]*/)
+
+    if (bigImageMatch) {
+      return bigImageMatch[0].replace(/\\/g, '') // quita escapes si hay
+    }
+
+    // 4. Último recurso: cualquier imagen .mlstatic.com que sea grande
+    const mlstaticMatch = html.match(
+      /https:\/\/http2\.mlstatic\.com\/D_[^"]+\.jpg/
+    )
+    if (mlstaticMatch) {
+      return mlstaticMatch[0]
+    }
+
+    return null
+  } catch (err: any) {
+    console.warn('[tryMetascraperScrape] error completo', err.message || err)
     return null
   }
 }
