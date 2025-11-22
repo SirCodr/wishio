@@ -95,14 +95,16 @@ async function tryMetascraperScrape(targetUrl: string): Promise<string | null> {
     const metadata = await metascraper({ html, url })
     let imageUrl = metadata.image as string | null
 
-    // if (await isValidImageUrl(imageUrl)) {
-    //   return imageUrl
-    // }
+    if (await isValidImageUrl(imageUrl)) {
+      return imageUrl
+    }
 
     console.warn(
       '[metascraper] Imagen inválida o placeholder, cayendo a fallback manual:',
       imageUrl
     )
+
+    console.log('[metascraper] HTML:', html)
 
     // 2. Fallback manual: busca og:image con la imagen grande (termina en O.jpg = Original)
     const ogMatch =
