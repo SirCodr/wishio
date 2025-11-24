@@ -4,6 +4,7 @@ import {
   chromium as playwright,
   type Page
 } from 'playwright-core'
+import chromiumPkg from '@sparticuz/chromium-min'
 
 type Extractor = (page: Page) => Promise<string | null>
 
@@ -32,10 +33,23 @@ export async function tryPlaywrightScrape(
 }
 
 async function launchBrowser(): Promise<Browser> {
-  await import('playwright')
+  const isVercel = process.env.VERCEL === '1'
+
+  let executablePath: string | undefined
+
+  if (isVercel) {
+    const chromiumPackUrl =
+      'https://github.com/Sparticuz/chromium/releases/download/v130.0.0/chromium-v130.0.0-pack.tar'
+
+    executablePath = await chromiumPkg.executablePath(chromiumPackUrl)
+  } else {
+    await import('playwright')
+  }
 
   return playwright.launch({
-    headless: true
+    headless: true,
+    executablePath,
+    args: isVercel ? chromiumPkg.args : ['--no-sandbox']
   })
 }
 
