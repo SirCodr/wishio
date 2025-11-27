@@ -21,6 +21,9 @@ export type Database = {
           id: string
           image_url: string | null
           is_favorite: boolean
+          price: string | null
+          priority: string
+          status: string
           title: string
           updated_at: string | null
           url: string
@@ -32,6 +35,9 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_favorite?: boolean
+          price?: string | null
+          priority?: string
+          status?: string
           title: string
           updated_at?: string | null
           url: string
@@ -43,6 +49,9 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_favorite?: boolean
+          price?: string | null
+          priority?: string
+          status?: string
           title?: string
           updated_at?: string | null
           url?: string
