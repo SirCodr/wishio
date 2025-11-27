@@ -1,12 +1,11 @@
 'use client'
 
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
   Calendar,
   DollarSign,
   ExternalLink,
-  Globe,
   Heart,
   MoreVertical,
   Pencil,
@@ -31,6 +30,7 @@ import { DeleteWishDialog } from './delete-wish-form'
 import { Tables } from '@/lib/supabase/database.types'
 import WishCardImagePlaceHolder from './wish-card-image-place-holder'
 import { formatDateToString } from '@/lib/dateFormat'
+import { PRIORITY_CONFIG, STATUS_CONFIG } from '../constants/wishes'
 
 const MODALS = {
   EDIT: 'edit',
@@ -58,6 +58,11 @@ export function WishCardStandard({ wish }: WishCardStandardProps) {
   const [currentModal, setCurrentModal] = useState<
     (typeof MODALS)[keyof typeof MODALS] | null
   >(null)
+
+  const statusConfig = STATUS_CONFIG[status as keyof typeof STATUS_CONFIG]
+  const priorityConfig =
+    PRIORITY_CONFIG[priority as keyof typeof PRIORITY_CONFIG]
+
   const getDomain = (url: string) => {
     try {
       return new URL(url).hostname.replace('www.', '')
@@ -80,36 +85,6 @@ export function WishCardStandard({ wish }: WishCardStandardProps) {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(Number(price))
-  }
-
-  const statusConfig: Record<string, { label: string; color: string }> = {
-    wishlist: {
-      label: 'En Lista',
-      color: 'bg-blue-500/10 text-blue-700 border-blue-200'
-    },
-    purchased: {
-      label: 'Comprado',
-      color: 'bg-green-500/10 text-green-700 border-green-200'
-    },
-    discarded: {
-      label: 'Descartado',
-      color: 'bg-gray-500/10 text-gray-700 border-gray-200'
-    }
-  }
-
-  const priorityConfig: Record<string, { label: string; color: string }> = {
-    high: {
-      label: 'Prioridad Alta',
-      color: 'bg-red-500/10 text-red-700 border-red-200'
-    },
-    medium: {
-      label: 'Prioridad Media',
-      color: 'bg-yellow-500/10 text-yellow-700 border-yellow-200'
-    },
-    low: {
-      label: 'Prioridad Baja',
-      color: 'bg-gray-500/10 text-gray-700 border-gray-200'
-    }
   }
 
   return (
@@ -200,20 +175,20 @@ export function WishCardStandard({ wish }: WishCardStandardProps) {
               <Badge variant='outline' className='text-xs'>
                 {getDomain(url)}
               </Badge>
-              {statusConfig[status] && (
+              {statusConfig && (
                 <Badge
                   variant='outline'
-                  className={`text-xs ${statusConfig[status].color}`}
+                  className={`text-xs ${statusConfig.color}`}
                 >
-                  {statusConfig[status].label}
+                  {statusConfig.label}
                 </Badge>
               )}
-              {priorityConfig[priority] && (
+              {priorityConfig && (
                 <Badge
                   variant='outline'
-                  className={`text-xs ${priorityConfig[priority].color}`}
+                  className={`text-xs ${priorityConfig.color}`}
                 >
-                  {priorityConfig[priority].label}
+                  {priorityConfig.label}
                 </Badge>
               )}
             </div>

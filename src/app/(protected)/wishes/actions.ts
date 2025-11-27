@@ -6,12 +6,24 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { WishActionState, WishFormPayload } from '@/modules/wishes/types/wish'
 import { BASE_PATH } from '@/constants/paths'
+import {
+  WISH_PRIORITIES,
+  WISH_STATUSES
+} from '@/modules/wishes/constants/wishes'
 
 export async function createWish(prevState: WishActionState, data: FormData) {
   const postCreationSchema: z.ZodType<WishFormPayload> = z.object({
     title: z.string().min(1, 'El título es obligatorio'),
-    url: z.string().url('La URL no es válida'),
+    url: z.url('La URL no es válida'),
+    status: z.enum(WISH_STATUSES),
+    priority: z.enum(WISH_PRIORITIES),
     is_favorite: z.coerce.boolean(),
+    image_url: z
+      .string()
+      .refine((val) => val === '' || z.url().safeParse(val).success, {
+        message: 'La URL no es válida'
+      })
+      .optional(),
     description: z.string().optional()
   })
   const values = Object.fromEntries(data.entries()) as Record<
@@ -33,24 +45,32 @@ export async function createWish(prevState: WishActionState, data: FormData) {
     const { userId, getToken } = await auth()
     const token = await getToken()
     const supabase = await createServerClient()
+    let imageUrl = ''
 
-    const targetResponse = await fetch(
-      `${BASE_PATH}/api/metascraper?targetUrl=` + parsedData.data.url,
-      {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`
+    if (!parsedData.data.image_url) {
+      const targetResponse = await fetch(
+        `${BASE_PATH}/api/metascraper?targetUrl=` + parsedData.data.url,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         }
-      }
-    )
-    const { imageUrl } = await targetResponse.json()
+      )
+      await targetResponse.json().then((data) => {
+        imageUrl = data.imageUrl
+      })
+    }
 
     await supabase.from('wishes').insert({
       title: parsedData.data.title,
       url: parsedData.data.url,
       is_favorite: parsedData.data.is_favorite,
+      status: parsedData.data.status,
+      priority: parsedData.data.priority,
       description: parsedData.data.description,
-      image_url: imageUrl,
+      image_url: imageUrl || parsedData.data.image_url,
+      price: parsedData.data.price,
       user_id: userId
     })
 
@@ -70,8 +90,17 @@ export async function updateWish(prevState: WishActionState, data: FormData) {
   const updateSchema: z.ZodType<WishFormPayload> = z.object({
     id: z.string().min(1, 'El ID es obligatorio'),
     title: z.string().min(1, 'El título es obligatorio'),
-    url: z.string().url('La URL no es válida'),
+    url: z.url('La URL no es válida'),
     is_favorite: z.coerce.boolean(),
+    status: z.enum(WISH_STATUSES),
+    priority: z.enum(WISH_PRIORITIES),
+    price: z.string().optional(),
+    image_url: z
+      .string()
+      .refine((val) => val === '' || z.url().safeParse(val).success, {
+        message: 'La URL no es válida'
+      })
+      .optional(),
     description: z.string().optional()
   })
   const values = Object.fromEntries(data.entries()) as Record<
@@ -97,8 +126,12 @@ export async function updateWish(prevState: WishActionState, data: FormData) {
       .update({
         title: parsedData.data.title,
         url: parsedData.data.url,
-        isFavorite: parsedData.data.is_favorite,
-        description: parsedData.data.description
+        is_favorite: parsedData.data.is_favorite,
+        status: parsedData.data.status,
+        priority: parsedData.data.priority,
+        description: parsedData.data.description,
+        image_url: parsedData.data.image_url,
+        price: parsedData.data.price
       })
       .eq('id', parsedData.data.id)
 
