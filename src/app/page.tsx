@@ -1,5 +1,5 @@
-import { redirect, RedirectType } from "next/navigation"
+import Landing from '@/modules/landing/components/landing'
 
 export default async function Home() {
-  redirect('/wishes', RedirectType.replace)
+  return <Landing />
 }
